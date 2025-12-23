@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Auto Detect Payment Gateway</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{background:#020617;color:#e5e7eb;font-family:Arial;padding:20px}
+.app{max-width:900px;margin:auto;border:1px solid #1e293b;padding:20px;border-radius:14px}
+h1{text-align:center;color:#38bdf8}
+input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
+button{background:#2563eb;font-weight:bold}
+.status{font-weight:bold;margin-top:6px}
+.amount{color:#facc15}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Auto Detect Gateway Checker</h1>
+<input id="link" placeholder="Paste Razorpay / Stripe payment link">
+<button onclick="check()">CHECK LINK</button>
+<div id="s" class="status"></div>
+<div id="a" class="amount"></div>
+</div>
+
+<script>
+async function check(){
+  s.textContent="Checking...";
+  a.textContent="";
+  const r = await fetch("/api/check-payment",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({link:link.value})
+  });
+  const d = await r.json();
+  if(!d.ok){
+    s.textContent="DEAD ❌ Invalid payment link";
+    s.style.color="#f87171";
+    return;
+  }
+  s.textContent=`LIVE ✅ ${d.gateway}`;
+  s.style.color="#22c55e";
+  a.textContent=`Amount: ${d.currency.toUpperCase()} ${d.amount} (${d.status})`;
+}
+</script>
+</body>
+</html>
