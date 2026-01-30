@@ -157,7 +157,6 @@ function saveData(){
   localStorage.setItem("sitesData", JSON.stringify(sites));
 }
 
-/* ---------- SITES ---------- */
 function renderSites(){
   const list = document.getElementById("sitesList");
   list.innerHTML="";
@@ -192,7 +191,6 @@ function selectSite(name){
   updateTotal();
 }
 
-/* ---------- ROOMS ---------- */
 function renderRooms(){
   const list=document.getElementById("roomsList");
   list.innerHTML="";
@@ -211,7 +209,6 @@ function selectRoom(room){
   renderRoomPanel();
 }
 
-/* ---------- ROOM PANEL ---------- */
 function renderRoomPanel(){
   if(!currentRoom){
     document.getElementById("roomPanel").innerHTML="<i>Select a room</i>";
@@ -225,7 +222,6 @@ function renderRoomPanel(){
   `;
 }
 
-/* ---------- ITEMS ---------- */
 function addItem(){
   const item=document.getElementById("itemInput").value;
   const amt=parseFloat(document.getElementById("amtInput").value);
@@ -285,7 +281,6 @@ function deleteItem(room,idx){
   updateTotal();
 }
 
-/* ---------- TOTAL ---------- */
 function updateTotal(){
   if(!currentSite) return;
   let total = 0;
@@ -295,7 +290,7 @@ function updateTotal(){
   document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
 }
 
-/* ---------- PDF WITH SEPARATE ROOM BOXES ---------- */
+/* ---------- PDF ---------- */
 function downloadPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -342,12 +337,11 @@ function downloadPDF(){
         }
       });
 
-      y+=2;
-      doc.line(10,y,200,y);
-      y+=4;
-
+      // Room Total (line BELOW it)
       doc.setFont("helvetica","bold");
       doc.text("Room Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
+      y+=4;
+      doc.line(10,y,200,y);
       y+=10;
     }
   });
