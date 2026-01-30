@@ -1,48 +1,332 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Auto Detect Payment Gateway</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEVI INTERIOR - Sites</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body{background:#020617;color:#e5e7eb;font-family:Arial;padding:20px}
-.app{max-width:900px;margin:auto;border:1px solid #1e293b;padding:20px;border-radius:14px}
-h1{text-align:center;color:#38bdf8}
-input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
-button{background:#2563eb;font-weight:bold}
-.status{font-weight:bold;margin-top:6px}
-.amount{color:#facc15}
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+
+body{
+  font-family:'SF Pro Display',sans-serif;
+  background:linear-gradient(180deg,#e0e7ff 0%,#fff 100%);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.app-container{
+  width:100%;
+  max-width:460px;
+  background:white;
+  border-radius:28px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  padding:30px 20px;
+}
+
+h1{text-align:center;margin:10px 0;}
+h2{text-align:center;font-size:16px;color:#555;}
+
+.card{
+  background:#f9f9ff;
+  padding:14px;
+  border-radius:18px;
+  margin-top:12px;
+}
+
+.btn{
+  padding:10px 14px;
+  border-radius:14px;
+  border:none;
+  font-weight:600;
+  margin-top:8px;
+  cursor:pointer;
+}
+
+.btn-add{background:#e8fdf2;color:#14532d;}
+.btn-room{background:#f1f5f9;color:#1e293b;}
+.btn-edit{background:#fde68a;color:#713f12;margin-left:4px;}
+.btn-del{background:#fecaca;color:#7f1d1d;margin-left:4px;}
+.btn-pdf{background:#fee2e2;color:#7f1d1d;}
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin-top:6px;
+}
+
+.site-list, .room-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.site-item, .room-item-btn{
+  padding:6px 10px;
+  background:#eef2ff;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.site-item.active, .room-item-btn.active{
+  background:#c7d2fe;
+  font-weight:600;
+}
+
+.section-title{
+  margin-top:10px;
+  font-weight:700;
+  color:#1e3a8a;
+}
+
+.row-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  padding:4px 0;
+}
+
+.total-box{
+  background:#dcfce7;
+  padding:12px;
+  border-radius:14px;
+  margin-top:10px;
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 </style>
 </head>
+
 <body>
-<div class="app">
-<h1>Auto Detect Gateway Checker</h1>
-<input id="link" placeholder="Paste Razorpay / Stripe payment link">
-<button onclick="check()">CHECK LINK</button>
-<div id="s" class="status"></div>
-<div id="a" class="amount"></div>
+<div class="app-container">
+
+<h1>LEVI INTERIOR</h1>
+<h2>Sites List</h2>
+
+<div class="card">
+  <button class="btn btn-add" onclick="addSite()">➕ Add Site</button>
+  <div id="sitesList" class="site-list"></div>
+</div>
+
+<div id="siteDetails" style="display:none">
+
+  <div class="card">
+    <b>Rooms</b>
+    <div id="roomsList" class="room-list"></div>
+  </div>
+
+  <div class="card" id="roomPanel"></div>
+
+  <div class="card">
+    <b>All Items</b>
+    <div id="allItemsList"></div>
+  </div>
+
+  <div class="total-box">
+    <span id="totalAmount">Total: ₹0</span>
+    <button class="btn btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
+  </div>
+
+</div>
+
 </div>
 
 <script>
-async function check(){
-  s.textContent="Checking...";
-  a.textContent="";
-  const r = await fetch("/api/check-payment",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({link:link.value})
+let sites = JSON.parse(localStorage.getItem("sitesData")) || {};
+let currentSite = null;
+let currentRoom = null;
+
+const rooms = [
+  "Master Bedroom",
+  "Children's Bedroom",
+  "Guest Bedroom",
+  "Hall",
+  "TV Unit",
+  "Kitchen",
+  "Balcony",
+  "Utility",
+  "General"
+];
+
+function saveData(){
+  localStorage.setItem("sitesData", JSON.stringify(sites));
+}
+
+/* ---------- SITES ---------- */
+function renderSites(){
+  const list = document.getElementById("sitesList");
+  list.innerHTML="";
+  Object.keys(sites).forEach(name=>{
+    const div=document.createElement("div");
+    div.className="site-item"+(name===currentSite?" active":"");
+    div.innerText=name;
+    div.onclick=()=>selectSite(name);
+    list.appendChild(div);
   });
-  const d = await r.json();
-  if(!d.ok){
-    s.textContent="DEAD ❌ Invalid payment link";
-    s.style.color="#f87171";
+}
+
+function addSite(){
+  const name = prompt("Enter site name");
+  if(!name) return;
+  if(sites[name]) return alert("Site already exists");
+
+  sites[name]={};
+  rooms.forEach(r=>sites[name][r]=[]);
+  saveData();
+  renderSites();
+}
+
+function selectSite(name){
+  currentSite=name;
+  currentRoom=null;
+  renderSites();
+  document.getElementById("siteDetails").style.display="block";
+  renderRooms();
+  renderRoomPanel();
+  renderAllItems();
+  updateTotal();   // ✅ ALWAYS
+}
+
+/* ---------- ROOMS ---------- */
+function renderRooms(){
+  const list=document.getElementById("roomsList");
+  list.innerHTML="";
+  rooms.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="room-item-btn"+(r===currentRoom?" active":"");
+    div.innerText=r;
+    div.onclick=()=>selectRoom(r);
+    list.appendChild(div);
+  });
+}
+
+function selectRoom(room){
+  currentRoom=room;
+  renderRooms();
+  renderRoomPanel();
+}
+
+/* ---------- ROOM PANEL ---------- */
+function renderRoomPanel(){
+  if(!currentRoom){
+    document.getElementById("roomPanel").innerHTML="<i>Select a room</i>";
     return;
   }
-  s.textContent=`LIVE ✅ ${d.gateway}`;
-  s.style.color="#22c55e";
-  a.textContent=`Amount: ${d.currency.toUpperCase()} ${d.amount} (${d.status})`;
+  document.getElementById("roomPanel").innerHTML=`
+    <b>${currentRoom}</b>
+    <input placeholder="Item name" id="itemInput">
+    <input placeholder="Amount" type="number" id="amtInput">
+    <button class="btn btn-room" onclick="addItem()">Add</button>
+  `;
 }
+
+/* ---------- ITEMS ---------- */
+function addItem(){
+  const item=document.getElementById("itemInput").value;
+  const amt=parseFloat(document.getElementById("amtInput").value);
+  if(!item || !amt) return alert("Enter item and amount");
+
+  sites[currentSite][currentRoom].push({item,amt});
+  saveData();
+  renderAllItems();
+  updateTotal();  // ✅
+  document.getElementById("itemInput").value="";
+  document.getElementById("amtInput").value="";
+}
+
+function renderAllItems(){
+  const box=document.getElementById("allItemsList");
+  box.innerHTML="";
+
+  rooms.forEach(room=>{
+    if(sites[currentSite][room].length>0){
+      const title=document.createElement("div");
+      title.className="section-title";
+      title.innerText=room.toUpperCase();
+      box.appendChild(title);
+
+      sites[currentSite][room].forEach((i,idx)=>{
+        const row=document.createElement("div");
+        row.className="row-item";
+        row.innerHTML=`
+          <span>${i.item}</span>
+          <span>₹${i.amt}</span>
+          <button class="btn btn-edit" onclick="editItem('${room}',${idx})">✏</button>
+          <button class="btn btn-del" onclick="deleteItem('${room}',${idx})">🗑</button>
+        `;
+        box.appendChild(row);
+      });
+    }
+  });
+}
+
+function editItem(room,idx){
+  const data = sites[currentSite][room][idx];
+  const newItem = prompt("Edit item name", data.item);
+  const newAmt = prompt("Edit amount", data.amt);
+  if(!newItem || !newAmt) return;
+
+  sites[currentSite][room][idx] = {item:newItem, amt:parseFloat(newAmt)};
+  saveData();
+  renderAllItems();
+  updateTotal(); // ✅
+}
+
+function deleteItem(room,idx){
+  if(!confirm("Delete this item?")) return;
+  sites[currentSite][room].splice(idx,1);
+  saveData();
+  renderAllItems();
+  updateTotal(); // ✅
+}
+
+/* ---------- TOTAL ---------- */
+function updateTotal(){
+  let total = 0;
+  rooms.forEach(r=>{
+    sites[currentSite][r].forEach(i=> total += Number(i.amt));
+  });
+  document.getElementById("totalAmount").innerText = "Total: ₹" + total;
+}
+
+/* ---------- PDF ---------- */
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y=10;
+
+  doc.text("LEVI INTERIOR - SITE REPORT",10,y); y+=10;
+  doc.text("Site: "+currentSite,10,y); y+=10;
+
+  rooms.forEach(room=>{
+    if(sites[currentSite][room].length>0){
+      doc.text(room.toUpperCase(),10,y); y+=6;
+      sites[currentSite][room].forEach(i=>{
+        doc.text(i.item+" - ₹"+i.amt,12,y);
+        y+=6;
+      });
+      y+=4;
+    }
+  });
+
+  doc.text(document.getElementById("totalAmount").innerText,10,y+5);
+  doc.save(currentSite+"_report.pdf");
+}
+
+renderSites();
 </script>
+
 </body>
 </html>
