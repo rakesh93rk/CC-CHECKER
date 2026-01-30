@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>LEVI INTERIOR - Sites</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -49,8 +48,8 @@ h2{text-align:center;font-size:16px;color:#555;}
 
 .btn-add{background:#e8fdf2;color:#14532d;}
 .btn-room{background:#f1f5f9;color:#1e293b;}
-.btn-edit{background:#fde68a;color:#713f12;margin-left:4px;}
-.btn-del{background:#fecaca;color:#7f1d1d;margin-left:4px;}
+.btn-edit{background:#fde68a;color:#713f12;}
+.btn-del{background:#fecaca;color:#7f1d1d;}
 .btn-pdf{background:#fee2e2;color:#7f1d1d;}
 
 input{
@@ -94,6 +93,7 @@ input{
   align-items:center;
   font-size:13px;
   padding:4px 0;
+  cursor:pointer;
 }
 
 .total-box{
@@ -105,6 +105,31 @@ input{
   display:flex;
   justify-content:space-between;
   align-items:center;
+}
+
+/* ---------- POPUP ---------- */
+.popup-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.popup{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  width:280px;
+  text-align:center;
+}
+
+.popup-buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -143,10 +168,23 @@ input{
 
 </div>
 
+<!-- POPUP -->
+<div class="popup-bg" id="popupBg">
+  <div class="popup">
+    <h3 id="popupTitle"></h3>
+    <div id="popupContent"></div>
+    <div class="popup-buttons" id="popupButtons"></div>
+  </div>
+</div>
+
 <script>
 let sites = JSON.parse(localStorage.getItem("sitesData")) || {};
 let currentSite = null;
 let currentRoom = null;
+
+let popupRoom = null;
+let popupIndex = null;
+let popupSite = null;
 
 const rooms = [
   "Master Bedroom","Children's Bedroom","Guest Bedroom","Hall",
@@ -166,6 +204,7 @@ function renderSites(){
     div.className="site-item"+(name===currentSite?" active":"");
     div.innerText=name;
     div.onclick=()=>selectSite(name);
+    div.ondblclick=()=>openSitePopup(name);
     list.appendChild(div);
   });
 }
@@ -181,6 +220,113 @@ function addSite(){
   renderSites();
 }
 
+/* ---------- SITE POPUP ---------- */
+function openSitePopup(name){
+  popupSite=name;
+  document.getElementById("popupTitle").innerText=name;
+  document.getElementById("popupContent").innerHTML="<p>Select action</p>";
+  document.getElementById("popupButtons").innerHTML=`
+    <button class="btn btn-edit" onclick="showEditSite()">Edit</button>
+    <button class="btn btn-del" onclick="deleteSite()">Delete</button>
+    <button class="btn" onclick="closePopup()">Close</button>
+  `;
+  showPopup();
+}
+
+function showEditSite(){
+  document.getElementById("popupContent").innerHTML=`
+    <input id="editInput" value="${popupSite}">
+  `;
+  document.getElementById("popupButtons").innerHTML=`
+    <button class="btn btn-edit" onclick="saveEditSite()">Save</button>
+    <button class="btn" onclick="openSitePopup('${popupSite}')">Back</button>
+  `;
+}
+
+function saveEditSite(){
+  const newName=document.getElementById("editInput").value.trim();
+  if(!newName) return alert("Enter site name");
+  if(sites[newName] && newName!==popupSite) return alert("Already exists");
+
+  sites[newName]=sites[popupSite];
+  delete sites[popupSite];
+  if(currentSite===popupSite) currentSite=newName;
+
+  saveData();
+  closePopup();
+  renderSites();
+}
+
+function deleteSite(){
+  if(!confirm("Delete this site?")) return;
+  delete sites[popupSite];
+  if(currentSite===popupSite){
+    currentSite=null;
+    document.getElementById("siteDetails").style.display="none";
+  }
+  saveData();
+  closePopup();
+  renderSites();
+}
+
+/* ---------- ITEM POPUP ---------- */
+function openItemPopup(room,idx){
+  popupRoom=room;
+  popupIndex=idx;
+  const item=sites[currentSite][room][idx];
+
+  document.getElementById("popupTitle").innerText=item.item;
+  document.getElementById("popupContent").innerHTML="<p>Select action</p>";
+  document.getElementById("popupButtons").innerHTML=`
+    <button class="btn btn-edit" onclick="showEditItem()">Edit</button>
+    <button class="btn btn-del" onclick="deleteItem()">Delete</button>
+    <button class="btn" onclick="closePopup()">Close</button>
+  `;
+  showPopup();
+}
+
+function showEditItem(){
+  const data=sites[currentSite][popupRoom][popupIndex];
+  document.getElementById("popupContent").innerHTML=`
+    <input id="editItemName" value="${data.item}">
+    <input id="editItemAmt" type="number" value="${data.amt}">
+  `;
+  document.getElementById("popupButtons").innerHTML=`
+    <button class="btn btn-edit" onclick="saveEditItem()">Save</button>
+    <button class="btn" onclick="openItemPopup('${popupRoom}',${popupIndex})">Back</button>
+  `;
+}
+
+function saveEditItem(){
+  const newName=document.getElementById("editItemName").value;
+  const newAmt=parseFloat(document.getElementById("editItemAmt").value);
+  if(!newName || isNaN(newAmt)) return alert("Fill both fields");
+
+  sites[currentSite][popupRoom][popupIndex]={item:newName,amt:newAmt};
+  saveData();
+  closePopup();
+  renderAllItems();
+  updateTotal();
+}
+
+function deleteItem(){
+  if(!confirm("Delete this item?")) return;
+  sites[currentSite][popupRoom].splice(popupIndex,1);
+  saveData();
+  closePopup();
+  renderAllItems();
+  updateTotal();
+}
+
+/* ---------- COMMON POPUP ---------- */
+function showPopup(){
+  document.getElementById("popupBg").style.display="flex";
+}
+function closePopup(){
+  document.getElementById("popupBg").style.display="none";
+}
+
+/* ---------- बाकी UI ---------- */
 function selectSite(name){
   currentSite=name;
   currentRoom=null;
@@ -192,7 +338,6 @@ function selectSite(name){
   updateTotal();
 }
 
-/* ---------- ROOMS ---------- */
 function renderRooms(){
   const list=document.getElementById("roomsList");
   list.innerHTML="";
@@ -211,7 +356,6 @@ function selectRoom(room){
   renderRoomPanel();
 }
 
-/* ---------- ROOM PANEL ---------- */
 function renderRoomPanel(){
   if(!currentRoom){
     document.getElementById("roomPanel").innerHTML="<i>Select a room</i>";
@@ -225,7 +369,6 @@ function renderRoomPanel(){
   `;
 }
 
-/* ---------- ITEMS ---------- */
 function addItem(){
   const item=document.getElementById("itemInput").value;
   const amt=parseFloat(document.getElementById("amtInput").value);
@@ -253,46 +396,21 @@ function renderAllItems(){
       sites[currentSite][room].forEach((i,idx)=>{
         const row=document.createElement("div");
         row.className="row-item";
-        row.innerHTML=`
-          <span>${i.item}</span>
-          <span>Rs. ${i.amt}</span>
-          <button class="btn btn-edit" onclick="editItem('${room}',${idx})">✏</button>
-          <button class="btn btn-del" onclick="deleteItem('${room}',${idx})">🗑</button>
-        `;
+        row.innerHTML=`<span>${i.item}</span><span>Rs. ${i.amt}</span>`;
+        row.ondblclick=()=>openItemPopup(room,idx);
         box.appendChild(row);
       });
     }
   });
 }
 
-function editItem(room,idx){
-  const data = sites[currentSite][room][idx];
-  const newItem = prompt("Edit item name", data.item);
-  const newAmt = prompt("Edit amount", data.amt);
-  if(!newItem || isNaN(newAmt)) return;
-
-  sites[currentSite][room][idx] = {item:newItem, amt:parseFloat(newAmt)};
-  saveData();
-  renderAllItems();
-  updateTotal();
-}
-
-function deleteItem(room,idx){
-  if(!confirm("Delete this item?")) return;
-  sites[currentSite][room].splice(idx,1);
-  saveData();
-  renderAllItems();
-  updateTotal();
-}
-
-/* ---------- TOTAL ---------- */
 function updateTotal(){
   if(!currentSite) return;
-  let total = 0;
+  let total=0;
   rooms.forEach(r=>{
-    sites[currentSite][r].forEach(i=> total += Number(i.amt));
+    sites[currentSite][r].forEach(i=>total+=i.amt);
   });
-  document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
+  document.getElementById("totalAmount").innerText="Total: Rs. "+total.toFixed(2);
 }
 
 /* ---------- PDF HELPERS ---------- */
@@ -321,7 +439,6 @@ function downloadPDF(){
 
   drawHeader(doc);
   let y = 35;
-
   let grandTotal = 0;
 
   rooms.forEach(room=>{
@@ -355,7 +472,7 @@ function downloadPDF(){
       });
 
       doc.setFont("helvetica","bold");
-      doc.text(" Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
+      doc.text("Room Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
       y+=4;
       doc.line(10,y,200,y);
       y+=10;
