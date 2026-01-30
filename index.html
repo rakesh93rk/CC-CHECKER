@@ -337,17 +337,15 @@ function downloadPDF(){
         }
       });
 
-      // Room Total (line BELOW it)
       doc.setFont("helvetica","bold");
-      doc.text("Room Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
+      doc.text(" Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
       y+=4;
       doc.line(10,y,200,y);
       y+=10;
     }
   });
 
-  doc.line(10,y,200,y);
-  y+=8;
+  // ❌ Removed line before Grand Total
   doc.setFontSize(14);
   doc.text("Grand Total: Rs. " + grandTotal.toFixed(2),170,y,{align:"right"});
 
