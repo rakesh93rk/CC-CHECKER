@@ -135,7 +135,7 @@ input{
   </div>
 
   <div class="total-box">
-    <span id="totalAmount">Total: ₹0</span>
+    <span id="totalAmount">Total: Rs. 0</span>
     <button class="btn btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
   </div>
 
@@ -255,7 +255,7 @@ function renderAllItems(){
         row.className="row-item";
         row.innerHTML=`
           <span>${i.item}</span>
-          <span>₹${i.amt}</span>
+          <span>Rs. ${i.amt}</span>
           <button class="btn btn-edit" onclick="editItem('${room}',${idx})">✏</button>
           <button class="btn btn-del" onclick="deleteItem('${room}',${idx})">🗑</button>
         `;
@@ -292,19 +292,21 @@ function updateTotal(){
   rooms.forEach(r=>{
     sites[currentSite][r].forEach(i=> total += Number(i.amt));
   });
-  document.getElementById("totalAmount").innerText = "Total: ₹" + total.toFixed(2);
+  document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
 }
 
-/* ---------- PROFESSIONAL PDF ---------- */
+/* ---------- PROFESSIONAL PDF (Rs.) ---------- */
 function downloadPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   let y = 15;
+  doc.setFont("helvetica","bold");
   doc.setFontSize(16);
   doc.text("LEVI INTERIOR - SITE REPORT",105,y,{align:"center"});
   y+=10;
 
+  doc.setFont("helvetica","normal");
   doc.setFontSize(12);
   doc.text("Site: " + currentSite,10,y);
   y+=8;
@@ -322,18 +324,19 @@ function downloadPDF(){
     sites[currentSite][room].forEach(i=>{
       doc.text(room,10,y);
       doc.text(i.item,60,y);
-      doc.text("₹"+i.amt.toFixed(2),170,y,{align:"right"});
+      doc.text("Rs. " + i.amt.toFixed(2),170,y,{align:"right"});
       total += i.amt;
       y+=6;
-      if(y>280){doc.addPage(); y=20;}
+      if(y>280){ doc.addPage(); y=20; }
     });
   });
 
   y+=5;
   doc.line(10,y,200,y);
   y+=8;
+  doc.setFont("helvetica","bold");
   doc.setFontSize(14);
-  doc.text("Grand Total: ₹"+total.toFixed(2),170,y,{align:"right"});
+  doc.text("Grand Total: Rs. " + total.toFixed(2),170,y,{align:"right"});
 
   doc.save(currentSite+"_report.pdf");
 }
