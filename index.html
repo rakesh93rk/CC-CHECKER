@@ -295,7 +295,7 @@ function updateTotal(){
   document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
 }
 
-/* ---------- PROFESSIONAL PDF (Rs.) ---------- */
+/* ---------- PDF WITH SEPARATE ROOM BOXES ---------- */
 function downloadPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -309,34 +309,53 @@ function downloadPDF(){
   doc.setFont("helvetica","normal");
   doc.setFontSize(12);
   doc.text("Site: " + currentSite,10,y);
-  y+=8;
+  y+=10;
 
-  doc.text("Room",10,y);
-  doc.text("Item",60,y);
-  doc.text("Amount",170,y,{align:"right"});
-  y+=5;
-  doc.line(10,y,200,y);
-  y+=5;
-
-  let total = 0;
+  let grandTotal = 0;
 
   rooms.forEach(room=>{
-    sites[currentSite][room].forEach(i=>{
-      doc.text(room,10,y);
-      doc.text(i.item,60,y);
-      doc.text("Rs. " + i.amt.toFixed(2),170,y,{align:"right"});
-      total += i.amt;
+    if(sites[currentSite][room].length > 0){
+
+      doc.setFont("helvetica","bold");
+      doc.text(room.toUpperCase(),10,y);
       y+=6;
-      if(y>280){ doc.addPage(); y=20; }
-    });
+
+      doc.setFont("helvetica","normal");
+      doc.text("Item",12,y);
+      doc.text("Amount",170,y,{align:"right"});
+      y+=4;
+      doc.line(10,y,200,y);
+      y+=4;
+
+      let roomTotal = 0;
+
+      sites[currentSite][room].forEach(i=>{
+        doc.text(i.item,12,y);
+        doc.text("Rs. " + i.amt.toFixed(2),170,y,{align:"right"});
+        roomTotal += i.amt;
+        grandTotal += i.amt;
+        y+=6;
+
+        if(y>280){
+          doc.addPage();
+          y=20;
+        }
+      });
+
+      y+=2;
+      doc.line(10,y,200,y);
+      y+=4;
+
+      doc.setFont("helvetica","bold");
+      doc.text("Room Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
+      y+=10;
+    }
   });
 
-  y+=5;
   doc.line(10,y,200,y);
   y+=8;
-  doc.setFont("helvetica","bold");
   doc.setFontSize(14);
-  doc.text("Grand Total: Rs. " + total.toFixed(2),170,y,{align:"right"});
+  doc.text("Grand Total: Rs. " + grandTotal.toFixed(2),170,y,{align:"right"});
 
   doc.save(currentSite+"_report.pdf");
 }
