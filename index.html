@@ -149,15 +149,8 @@ let currentSite = null;
 let currentRoom = null;
 
 const rooms = [
-  "Master Bedroom",
-  "Children's Bedroom",
-  "Guest Bedroom",
-  "Hall",
-  "TV Unit",
-  "Kitchen",
-  "Balcony",
-  "Utility",
-  "General"
+  "Master Bedroom","Children's Bedroom","Guest Bedroom","Hall",
+  "TV Unit","Kitchen","Balcony","Utility","General"
 ];
 
 function saveData(){
@@ -196,7 +189,7 @@ function selectSite(name){
   renderRooms();
   renderRoomPanel();
   renderAllItems();
-  updateTotal();   // ✅ ALWAYS
+  updateTotal();
 }
 
 /* ---------- ROOMS ---------- */
@@ -236,12 +229,12 @@ function renderRoomPanel(){
 function addItem(){
   const item=document.getElementById("itemInput").value;
   const amt=parseFloat(document.getElementById("amtInput").value);
-  if(!item || !amt) return alert("Enter item and amount");
+  if(!item || isNaN(amt)) return alert("Enter item and amount");
 
   sites[currentSite][currentRoom].push({item,amt});
   saveData();
   renderAllItems();
-  updateTotal();  // ✅
+  updateTotal();
   document.getElementById("itemInput").value="";
   document.getElementById("amtInput").value="";
 }
@@ -276,12 +269,12 @@ function editItem(room,idx){
   const data = sites[currentSite][room][idx];
   const newItem = prompt("Edit item name", data.item);
   const newAmt = prompt("Edit amount", data.amt);
-  if(!newItem || !newAmt) return;
+  if(!newItem || isNaN(newAmt)) return;
 
   sites[currentSite][room][idx] = {item:newItem, amt:parseFloat(newAmt)};
   saveData();
   renderAllItems();
-  updateTotal(); // ✅
+  updateTotal();
 }
 
 function deleteItem(room,idx){
@@ -289,39 +282,59 @@ function deleteItem(room,idx){
   sites[currentSite][room].splice(idx,1);
   saveData();
   renderAllItems();
-  updateTotal(); // ✅
+  updateTotal();
 }
 
 /* ---------- TOTAL ---------- */
 function updateTotal(){
+  if(!currentSite) return;
   let total = 0;
   rooms.forEach(r=>{
     sites[currentSite][r].forEach(i=> total += Number(i.amt));
   });
-  document.getElementById("totalAmount").innerText = "Total: ₹" + total;
+  document.getElementById("totalAmount").innerText = "Total: ₹" + total.toFixed(2);
 }
 
-/* ---------- PDF ---------- */
+/* ---------- PROFESSIONAL PDF ---------- */
 function downloadPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  let y=10;
 
-  doc.text("LEVI INTERIOR - SITE REPORT",10,y); y+=10;
-  doc.text("Site: "+currentSite,10,y); y+=10;
+  let y = 15;
+  doc.setFontSize(16);
+  doc.text("LEVI INTERIOR - SITE REPORT",105,y,{align:"center"});
+  y+=10;
+
+  doc.setFontSize(12);
+  doc.text("Site: " + currentSite,10,y);
+  y+=8;
+
+  doc.text("Room",10,y);
+  doc.text("Item",60,y);
+  doc.text("Amount",170,y,{align:"right"});
+  y+=5;
+  doc.line(10,y,200,y);
+  y+=5;
+
+  let total = 0;
 
   rooms.forEach(room=>{
-    if(sites[currentSite][room].length>0){
-      doc.text(room.toUpperCase(),10,y); y+=6;
-      sites[currentSite][room].forEach(i=>{
-        doc.text(i.item+" - ₹"+i.amt,12,y);
-        y+=6;
-      });
-      y+=4;
-    }
+    sites[currentSite][room].forEach(i=>{
+      doc.text(room,10,y);
+      doc.text(i.item,60,y);
+      doc.text("₹"+i.amt.toFixed(2),170,y,{align:"right"});
+      total += i.amt;
+      y+=6;
+      if(y>280){doc.addPage(); y=20;}
+    });
   });
 
-  doc.text(document.getElementById("totalAmount").innerText,10,y+5);
+  y+=5;
+  doc.line(10,y,200,y);
+  y+=8;
+  doc.setFontSize(14);
+  doc.text("Grand Total: ₹"+total.toFixed(2),170,y,{align:"right"});
+
   doc.save(currentSite+"_report.pdf");
 }
 
