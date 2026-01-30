@@ -157,7 +157,145 @@ function saveData(){
   localStorage.setItem("sitesData", JSON.stringify(sites));
 }
 
-/* ---------- PDF with Header & Page Number ---------- */
+/* ---------- SITES ---------- */
+function renderSites(){
+  const list = document.getElementById("sitesList");
+  list.innerHTML="";
+  Object.keys(sites).forEach(name=>{
+    const div=document.createElement("div");
+    div.className="site-item"+(name===currentSite?" active":"");
+    div.innerText=name;
+    div.onclick=()=>selectSite(name);
+    list.appendChild(div);
+  });
+}
+
+function addSite(){
+  const name = prompt("Enter site name");
+  if(!name) return;
+  if(sites[name]) return alert("Site already exists");
+
+  sites[name]={};
+  rooms.forEach(r=>sites[name][r]=[]);
+  saveData();
+  renderSites();
+}
+
+function selectSite(name){
+  currentSite=name;
+  currentRoom=null;
+  renderSites();
+  document.getElementById("siteDetails").style.display="block";
+  renderRooms();
+  renderRoomPanel();
+  renderAllItems();
+  updateTotal();
+}
+
+/* ---------- ROOMS ---------- */
+function renderRooms(){
+  const list=document.getElementById("roomsList");
+  list.innerHTML="";
+  rooms.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="room-item-btn"+(r===currentRoom?" active":"");
+    div.innerText=r;
+    div.onclick=()=>selectRoom(r);
+    list.appendChild(div);
+  });
+}
+
+function selectRoom(room){
+  currentRoom=room;
+  renderRooms();
+  renderRoomPanel();
+}
+
+/* ---------- ROOM PANEL ---------- */
+function renderRoomPanel(){
+  if(!currentRoom){
+    document.getElementById("roomPanel").innerHTML="<i>Select a room</i>";
+    return;
+  }
+  document.getElementById("roomPanel").innerHTML=`
+    <b>${currentRoom}</b>
+    <input placeholder="Item name" id="itemInput">
+    <input placeholder="Amount" type="number" id="amtInput">
+    <button class="btn btn-room" onclick="addItem()">Add</button>
+  `;
+}
+
+/* ---------- ITEMS ---------- */
+function addItem(){
+  const item=document.getElementById("itemInput").value;
+  const amt=parseFloat(document.getElementById("amtInput").value);
+  if(!item || isNaN(amt)) return alert("Enter item and amount");
+
+  sites[currentSite][currentRoom].push({item,amt});
+  saveData();
+  renderAllItems();
+  updateTotal();
+  document.getElementById("itemInput").value="";
+  document.getElementById("amtInput").value="";
+}
+
+function renderAllItems(){
+  const box=document.getElementById("allItemsList");
+  box.innerHTML="";
+
+  rooms.forEach(room=>{
+    if(sites[currentSite][room].length>0){
+      const title=document.createElement("div");
+      title.className="section-title";
+      title.innerText=room.toUpperCase();
+      box.appendChild(title);
+
+      sites[currentSite][room].forEach((i,idx)=>{
+        const row=document.createElement("div");
+        row.className="row-item";
+        row.innerHTML=`
+          <span>${i.item}</span>
+          <span>Rs. ${i.amt}</span>
+          <button class="btn btn-edit" onclick="editItem('${room}',${idx})">✏</button>
+          <button class="btn btn-del" onclick="deleteItem('${room}',${idx})">🗑</button>
+        `;
+        box.appendChild(row);
+      });
+    }
+  });
+}
+
+function editItem(room,idx){
+  const data = sites[currentSite][room][idx];
+  const newItem = prompt("Edit item name", data.item);
+  const newAmt = prompt("Edit amount", data.amt);
+  if(!newItem || isNaN(newAmt)) return;
+
+  sites[currentSite][room][idx] = {item:newItem, amt:parseFloat(newAmt)};
+  saveData();
+  renderAllItems();
+  updateTotal();
+}
+
+function deleteItem(room,idx){
+  if(!confirm("Delete this item?")) return;
+  sites[currentSite][room].splice(idx,1);
+  saveData();
+  renderAllItems();
+  updateTotal();
+}
+
+/* ---------- TOTAL ---------- */
+function updateTotal(){
+  if(!currentSite) return;
+  let total = 0;
+  rooms.forEach(r=>{
+    sites[currentSite][r].forEach(i=> total += Number(i.amt));
+  });
+  document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
+}
+
+/* ---------- PDF HELPERS ---------- */
 function drawHeader(doc){
   doc.setFont("helvetica","bold");
   doc.setFontSize(16);
@@ -167,7 +305,7 @@ function drawHeader(doc){
   doc.text("Site: " + currentSite,10,25);
 }
 
-function addPageNumber(doc){
+function addPageNumbers(doc){
   const pageCount = doc.getNumberOfPages();
   for(let i=1;i<=pageCount;i++){
     doc.setPage(i);
@@ -176,6 +314,7 @@ function addPageNumber(doc){
   }
 }
 
+/* ---------- PDF ---------- */
 function downloadPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -226,9 +365,11 @@ function downloadPDF(){
   doc.setFontSize(14);
   doc.text("Grand Total: Rs. " + grandTotal.toFixed(2),170,y,{align:"right"});
 
-  addPageNumber(doc);
+  addPageNumbers(doc);
   doc.save(currentSite+"_report.pdf");
 }
+
+renderSites();
 </script>
 
 </body>
