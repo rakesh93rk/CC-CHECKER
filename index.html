@@ -355,7 +355,7 @@ function downloadPDF(){
       });
 
       doc.setFont("helvetica","bold");
-      doc.text("Room Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
+      doc.text(" Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
       y+=4;
       doc.line(10,y,200,y);
       y+=10;
