@@ -1,376 +1,1376 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+<!-- FULL FILE CONTENT WITH PLAIN HEADER SUPPORT -->
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>LEVI INTERIOR - Sites</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Levi History v48.15 – Full</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+  :root{
+    --bg:#7b7b7b;
+    --accent:#ff5252;
+    --white:#fff;
+    --clientBar:#333;
+    --headerBg:linear-gradient(90deg,#161616,#101010);
+    --brand-blue:#1070d8;
+    --footer-bg:transparent;
+    --footer-text:#000000;
+    --gst-highlight:#e9e9e9;
+  }
+  html,body{margin:0;height:100%;font-family:"Segoe UI",sans-serif;background:var(--bg);color:var(--white)}
+  .wrap{max-width:720px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+  header.top{background:var(--headerBg);padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--brand-blue);color:var(--white)}
+  header h1{margin:0;font-size:26px;font-weight:800;color:#fff}
+  #dateBox{margin-left:auto;color:#ccc;font-weight:700}
+  #clientRow{margin:10px 14px;background:var(--clientBar);padding:10px 14px;border-radius:8px;display:flex;align-items:center;gap:10px;font-weight:800;color:var(--white)}
+  .client-left{flex:1;}
+  .client-right{margin-left:auto;font-weight:800;color:#ffffff;font-size:13px;white-space:nowrap;}
 
-body{
-  font-family:'SF Pro Display',sans-serif;
-  background:linear-gradient(180deg,#e0e7ff 0%,#fff 100%);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+  .history{flex:1;overflow:auto;padding:6px 8px;position:relative}
+  .hist-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1.5px solid #000;margin-bottom:8px;background:transparent;font-size:13px}
+  .hist-item.header{background:#e8e8e8;color:#000;font-weight:800;border-radius:6px;padding:12px;}
+.hist-item.plainheader{background:transparent;color:#000;font-weight:700;border-radius:0;padding:6px 8px;}
+  .hist-item .label{color:#000;font-weight:600;flex:1;padding-right:12px}
+  .hist-item .value{color:#ff5252;font-weight:800;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .menu-btn{background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px}
+  .dropdown{position:absolute;display:none;background:#0f1724;color:#fff;border-radius:10px;padding:8px 0;min-width:220px;z-index:10000;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+  .dropdown.show{display:block;opacity:0;transform:translateY(6px);animation:fadeIn 140ms forwards}
+  @keyframes fadeIn{to{opacity:1;transform:none}}
+  .dropdown button{background:transparent;border:0;color:#fff;display:block;width:100%;text-align:left;padding:12px 18px;font-size:15px;cursor:pointer;border-radius:6px}
+  .dropdown button:hover{background:#171717}
 
-.app-container{
-  width:100%;
-  max-width:460px;
-  background:white;
-  border-radius:28px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
-  padding:30px 20px;
-}
-
-h1{text-align:center;margin:10px 0;}
-h2{text-align:center;font-size:16px;color:#555;}
-
-.card{
-  background:#f9f9ff;
-  padding:14px;
-  border-radius:18px;
-  margin-top:12px;
-}
-
-.btn{
-  padding:10px 14px;
-  border-radius:14px;
-  border:none;
-  font-weight:600;
-  margin-top:8px;
-  cursor:pointer;
-}
-
-.btn-add{background:#e8fdf2;color:#14532d;}
-.btn-room{background:#f1f5f9;color:#1e293b;}
-.btn-edit{background:#fde68a;color:#713f12;margin-left:4px;}
-.btn-del{background:#fecaca;color:#7f1d1d;margin-left:4px;}
-.btn-pdf{background:#fee2e2;color:#7f1d1d;}
-
-input{
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  border:1px solid #ccc;
-  margin-top:6px;
-}
-
-.site-list, .room-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:8px;
-}
-
-.site-item, .room-item-btn{
-  padding:6px 10px;
-  background:#eef2ff;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13px;
-  white-space:nowrap;
-}
-
-.site-item.active, .room-item-btn.active{
-  background:#c7d2fe;
-  font-weight:600;
-}
-
-.section-title{
-  margin-top:10px;
+  .grand-bar{
+  background:var(--accent);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:8px;
+  margin:12px 14px;
   font-weight:700;
-  color:#1e3a8a;
+  font-family:"Segoe UI",sans-serif;
+  line-height:1.3;
+}
+  .grand-bar .top-line{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;}
+  .grand-bar .divider{border-bottom:1px solid rgba(255,255,255,0.85);margin:6px 0;}
+  .grand-bar .final{font-size:16px;font-weight:900;margin-top:6px;}
+
+  #footerBox{margin:14px;border-radius:8px;background:var(--footer-bg);color:#000;padding:12px 14px;font-size:14px;position:relative}
+  .footer-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 6px;border-radius:6px;position:relative;flex-wrap:wrap;line-height:1.4}
+  .footer-row.gst-highlight {
+    background:var(--gst-highlight);
+    font-weight:700;
+    color:#000;
+    padding:4px 8px !important;   /* HEIGHT SMALL DONE */
+    border-radius:8px;
 }
 
-.row-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  padding:4px 0;
+  .footer-row .f-label{color:#000;font-weight:700;margin-right:8px}
+  .footer-row .f-value{color:#000;flex:1;text-align:right;word-wrap:break-word;white-space:normal}
+  .footer-row .footer-menu-btn{background:transparent;border:0;color:#ccc;font-size:18px;cursor:pointer;padding:6px 8px}
+
+  .bottom{padding:14px;z-index:11000}
+  .actions{display:flex;gap:12px;overflow-x:auto}
+  .btn{background:#fff;color:#000;padding:10px 14px;border-radius:8px;border:0;font-weight:800;font-size:14px}
+  #notesModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:9999}
+  .modal-box{background:#0f1724;color:#fff;border-radius:10px;padding:18px;text-align:center;width:92%;max-width:520px;box-shadow:0 0 25px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.04);min-height:160px}
+  .modal-title{font-size:18px;margin:0 0 8px 0;}
+  .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;}
+  .menu-item{background:#111827;padding:12px;border-radius:8px;cursor:pointer;font-weight:800;color:#fff;border:1px solid rgba(255,255,255,0.03);}
+  .menu-item:hover{background:#1f2937;}
+  .section-content{display:none;text-align:left;margin-top:10px;}
+  .section-content.active{display:block;}
+  label{display:block;margin-top:8px;color:#cbd5e1;font-weight:700;}
+  input, textarea, .add-bedroom-btn, .save-section-btn { width:100%;padding:8px;margin-top:6px;border-radius:6px;border:none;font-size:14px;outline:none }
+  input, textarea{background:#1c2532;color:#fff;}
+  .add-bedroom-btn{background:#1070d8;color:#fff;cursor:pointer;font-weight:700;border:none;padding:8px;border-radius:6px;}
+  .note-hint{font-size:12px;color:#9ca3af;margin-top:6px;}
+  .save-section-btn{background:var(--brand-blue);color:#fff;border:none;margin-top:12px;padding:10px;font-weight:800;border-radius:8px;cursor:pointer;}
+  .cancel-section-btn{background:#6b7280;color:#fff;border:none;margin-top:8px;padding:10px;font-weight:800;border-radius:8px;cursor:pointer;}
+  .bed-item{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    background:#111827;
+    border:1px solid rgba(255,255,255,0.06);
+    position:relative;
+}
+  .remove-bed{
+    background:#b91c1c;
+    color:#fff;
+    border:none;
+    padding:4px 8px;
+    border-radius:6px;
+    cursor:pointer;
+    position:absolute;
+    top:8px;
+    right:8px;
+    font-size:12px;
+}
+  #downloadModal,#clientModal,#folderModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:9999}
+  .modal-box-small{background:#0f1724;color:#fff;border-radius:10px;padding:18px;text-align:center;width:92%;max-width:520px;box-shadow:0 0 25px rgba(0,0,0,0.6)}
+  .modal-btns{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .pdf-btn{background:var(--brand-blue);color:#fff}
+  .excel-btn{background:#0b7a44;color:#fff}
+  .cancel-btn{background:#6b7280;color:#fff}
+  .choice{padding:12px;border-radius:8px;margin-top:8px;background:#0b1220;border:1px solid rgba(255,255,255,0.04);cursor:pointer;color:#fff}
+  .choice.selected{background:#34d399;color:#000}
+  .choice.notselected{background:#e5e7eb;color:#000}
+  /* === Responsive font fix for GST/Total on small screens === */
+@media (max-width:480px){
+  .grand-bar{
+    font-size:13px;
+    line-height:1.25;
+    padding:6px 10px;
+  }
+  .grand-bar .gst-line{
+    font-size:13px;
+  }
+}
+/* FIX — All modals must stay above all buttons */
+#notesModal,
+#downloadModal,
+#clientModal,
+#folderModal {
+    z-index: 999999 !important;
 }
 
-.total-box{
-  background:#dcfce7;
-  padding:12px;
-  border-radius:14px;
-  margin-top:10px;
-  font-weight:700;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+/* FINAL GAP FIX */
+.hist-item .value {
+    width:auto !important;
+    flex:0 0 auto !important;
+    white-space:nowrap;
+    text-align:right;
 }
+
+
+/* --- UNBREAKABLE ROW FIX --- */
+.hist-item,
+.hist-item.header,
+.footer-row {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+
+#bedroomsList {
+    max-height: 120px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+
+#foldersList .f-label { color:#fff !important; }
+#foldersList .f-value { color:#ccc !important; }
+
+
+#bedroomsList { overflow-x: hidden !important; }
+.bed-item{width:100%;box-sizing:border-box;}
+
+/* ZIP v12 FIX — PERFECT LEFT ALIGNMENT (Option A) */
+.footer-row {
+    display:block !important;
+    padding-left:0 !important;
+}
+.footer-row .f-label {
+    display:block !important;
+    width:100% !important;
+    text-align:left !important;
+    padding-left:0 !important;
+    margin-bottom:6px !important;
+}
+.footer-row .f-value {
+    display:block !important;
+    width:100% !important;
+    text-align:left !important;
+    padding-left:0 !important;
+    margin-top:0 !important;
+    white-space:pre-wrap !important;
+    line-height:1.4 !important;
+}
+
+/* --- ZIP v14 FINAL FIX --- */
+
+/* Perfect left alignment ONLY for Material / Hardware / Handle */
+.footer-row[data-type="material"],
+.footer-row[data-type="hardware"],
+.footer-row[data-type="handle"] {
+    display:block !important;
+    padding-left:0 !important;
+}
+.footer-row[data-type="material"] .f-label,
+.footer-row[data-type="hardware"] .f-label,
+.footer-row[data-type="handle"] .f-label {
+    display:block !important;
+    width:100% !important;
+    text-align:left !important;
+    margin-bottom:6px !important;
+    padding-left:0 !important;
+}
+.footer-row[data-type="material"] .f-value,
+.footer-row[data-type="hardware"] .f-value,
+.footer-row[data-type="handle"] .f-value {
+    display:block !important;
+    width:100% !important;
+    text-align:left !important;
+    white-space:pre-wrap !important;
+    line-height:1.45 !important;
+    padding-left:0 !important;
+    margin-top:0 !important;
+}
+
+.footer-row[data-type="gst"] {
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    padding:10px !important;   /* ← THIS ONE FIXES YOUR HEIGHT */
+    background:var(--gst-highlight);
+    border-radius:12px;
+}
+.footer-row.gst-highlight .f-label {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+
 </style>
 </head>
-
 <body>
-<div class="app-container">
+<div class="wrap" id="wrap">
+  <header class="top">
+    <div style="flex:1"><h1>Levi History</h1></div>
+    <div id="dateBox"></div>
+  </header>
 
-<h1>LEVI INTERIOR</h1>
-<h2>Sites List</h2>
+  <div id="clientRow"><span class="client-left">Client: <span id="clientName" style="color:white">Unnamed</span></span><span id="quotationBy" class="client-right">Quotation by: <span id="quotationName">User</span></span></div>
 
-<div class="card">
-  <button class="btn btn-add" onclick="addSite()">➕ Add Site</button>
-  <div id="sitesList" class="site-list"></div>
+  <div class="history" id="historyList"></div>
+
+  <div class="grand-bar" id="grandBar"></div>
+
+  <div id="footerBox"></div>
+
+  <div class="bottom" id="bottomArea">
+    <div class="actions">
+      <button class="btn" id="notesBtn">📝 Notes</button>
+      <button class="btn" id="downloadBtn">⬇️ Download</button>
+      <button class="btn" id="folderBtn">📁 Folder</button>
+      <button class="btn" id="saveBtn">💾 Save File</button>
+      <button class="btn" id="restoreBtn">♻️ Restore Backup</button>
+      <button class="btn" id="clearBtn">🧹 Clear</button>
+    <button class="btn" id="saveFolderBtn">📁 Save to Folder</button>
+</div>
+  </div>
 </div>
 
-<div id="siteDetails" style="display:none">
+<!-- NOTES modal -->
+<div id="notesModal">
+  <div class="modal-box">
+    <h3 class="modal-title">📝 Notes</h3>
+    <div id="mainMenu" class="section-content active">
+      <div class="menu-grid">
+        <div class="menu-item" id="menuGST">🧾 GST</div>
+        <div class="menu-item" id="menuMaterial">🧱 Material</div>
+        <div class="menu-item" id="menuHardware">⚙️ Hardware</div>
+        <div class="menu-item" id="menuHandle">🪟 Handle</div>
+        <div class="menu-item" id="menuQuotation">📅 Quotation Valid Till</div>
+        <div class="menu-item" id="menuCancel">❌ Cancel</div>
+      </div>
+      <p class="note-hint">Open a section, save inside it, then come back to the main menu.</p>
+    </div>
 
-  <div class="card">
-    <b>Rooms</b>
-    <div id="roomsList" class="room-list"></div>
+    <div id="gstSection" class="section-content">
+      <div>
+        <div id="gstIncluded" class="choice">GST is Included (18%)</div>
+        <div id="gstNotIncluded" class="choice">GST is Not Included</div>
+        <p class="note-hint">Selecting "Included" will silently add 18% to the Total Amount (runtime only).</p>
+        <button class="save-section-btn" id="saveGstBtn">Save GST</button>
+        <button class="cancel-section-btn" id="backFromGst">Back</button>
+      </div>
+    </div>
+
+    <div id="materialMenu" class="section-content">
+      <div class="menu-grid">
+        <div class="menu-item" id="menuMaterialBedrooms">🛏️ Bedrooms</div>
+        <div class="menu-item" id="menuMaterialKitchen">🍽️ Kitchen</div>
+        <div class="menu-item" id="menuMaterialHall">🏠 Hall</div>
+        <div class="menu-item" id="menuMaterialTVUnit">📺 TV Unit</div>
+        <div class="menu-item" id="backFromMaterial">🔙 Back</div>
+      </div>
+    </div>
+
+    <div id="bedroomsSection" class="section-content">
+      <label>Bedrooms (add multiple)</label>
+      <div id="bedroomsList"></div>
+      <div class="row">
+        <button class="add-bedroom-btn" id="addBedroom">➕ Add Bedroom</button>
+        <button class="small-btn" id="clearBedrooms">Clear All</button>
+      </div>
+      <button class="save-section-btn" id="saveBedrooms">Save Bedrooms</button>
+      <button class="cancel-section-btn" id="backFromBedrooms">Back</button>
+    </div>
+
+    <div id="kitchenSection" class="section-content">
+      <label>Kitchen Material</label>
+      <input id="kitchenInput" placeholder="Enter kitchen material">
+      <button class="save-section-btn" id="saveKitchen">Save Kitchen</button>
+      <button class="cancel-section-btn" id="backFromKitchen">Back</button>
+    </div>
+
+    <div id="hallSection" class="section-content">
+      <label>Hall Material</label>
+      <input id="hallInput" placeholder="Enter hall material">
+      <button class="save-section-btn" id="saveHall">Save Hall</button>
+      <button class="cancel-section-btn" id="backFromHall">Back</button>
+    </div>
+
+    <div id="tvunitSection" class="section-content">
+      <label>TV Unit Material</label>
+      <input id="tvunitInput" placeholder="Enter TV unit material">
+      <button class="save-section-btn" id="saveTVUnit">Save TV Unit</button>
+      <button class="cancel-section-btn" id="backFromTVUnit">Back</button>
+    </div>
+
+    <div id="hardwareSection" class="section-content">
+      <label>Hardware</label>
+      <input id="hardwareInput" placeholder="Enter hardware">
+      <button class="save-section-btn" id="saveHardware">Save Hardware</button>
+      <button class="cancel-section-btn" id="backFromHardware">Back</button>
+    </div>
+
+    <div id="handleSection" class="section-content">
+      <label>Handle</label>
+      <input id="handleInput" placeholder="Enter handle">
+      <button class="save-section-btn" id="saveHandle">Save Handle</button>
+      <button class="cancel-section-btn" id="backFromHandle">Back</button>
+    </div>
+
+    <div id="quotationSection" class="section-content">
+      <label>Quotation Valid Till</label>
+      <input id="quotationInput" placeholder="Enter quotation valid till">
+      <button class="save-section-btn" id="saveQuotation">Save Quotation</button>
+      <button class="cancel-section-btn" id="backFromQuotation">Back</button>
+    </div>
   </div>
-
-  <div class="card" id="roomPanel"></div>
-
-  <div class="card">
-    <b>All Items</b>
-    <div id="allItemsList"></div>
-  </div>
-
-  <div class="total-box">
-    <span id="totalAmount">Total: Rs. 0</span>
-    <button class="btn btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
-  </div>
-
 </div>
 
+<!-- client confirm + download modal -->
+<div id="clientModal">
+  <div class="modal-box-small">
+    <h3>🧾 Confirm Client Name</h3>
+    <input id="clientNameInput" style="width:100%;padding:10px;border-radius:6px;border:none;margin-top:10px;font-size:15px" />
+    <div class="modal-btns">
+      <button class="pdf-btn" id="clientContinue">✅ Continue</button>
+      <button class="cancel-btn" id="clientCancel">❌ Cancel</button>
+    </div>
+  </div>
 </div>
+
+<div id="folderModal">
+  <div class="modal-box-small">
+    <h3>📁 Saved Folders</h3>
+    <div id="foldersList" style="max-height:300px;overflow-y:auto;margin-top:10px;"></div>
+    <button class="cancel-btn" id="closeFolderModal" style="margin-top:12px;">Close</button>
+  </div>
+</div>
+
+<div id="downloadModal">
+  <div class="modal-box-small">
+    <h3>Select download option</h3>
+    <div class="modal-btns">
+      <button class="pdf-btn" id="pdfDownload">🧾 Download PDF</button>
+      <button class="excel-btn" id="excelDownload">📊 Download Excel (.xlsx)</button>
+      <button class="cancel-btn" id="cancelDownload">❌ Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- libs -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-let sites = JSON.parse(localStorage.getItem("sitesData")) || {};
-let currentSite = null;
-let currentRoom = null;
+/* ---------- Data & UI ---------- */
+const STORAGE_KEY = 'beamHistory';
+const headerEl = document.querySelector('header.top');
+const clientRowEl = document.getElementById('clientRow');
+let history = [];
+try{ history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){ history = []; }
 
-const rooms = [
-  "Master Bedroom","Children's Bedroom","Guest Bedroom","Hall",
-  "TV Unit","Kitchen","Balcony","Utility","General"
-];
+const historyList = document.getElementById('historyList');
+const grandBarEl = document.getElementById('grandBar');
+const clientNameEl = document.getElementById('clientName');
+const dateBox = document.getElementById('dateBox');
+const footerBox = document.getElementById('footerBox');
+const bottomArea = document.getElementById('bottomArea');
+const quotationNameEl = document.getElementById('quotationName');
 
-function saveData(){
-  localStorage.setItem("sitesData", JSON.stringify(sites));
+// persist GST selection in localStorage (keep old var name)
+window._gstIncluded = localStorage.getItem('levi_gst_included') === 'true' ? true : false;
+
+dateBox.textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+clientNameEl.textContent = localStorage.getItem('levi_client_name') || 'Unnamed';
+
+let activeStaff = {};
+try{
+  activeStaff = JSON.parse(localStorage.getItem('levi_staff') || '{}');
+}catch(e){
+  activeStaff = {};
+}
+const staffName = activeStaff.name || activeStaff.username || activeStaff.email || 'User';
+window._leviStaffName = staffName;
+if(quotationNameEl){
+  quotationNameEl.textContent = staffName;
 }
 
-/* ---------- SITES ---------- */
-function renderSites(){
-  const list = document.getElementById("sitesList");
-  list.innerHTML="";
-  Object.keys(sites).forEach(name=>{
-    const div=document.createElement("div");
-    div.className="site-item"+(name===currentSite?" active":"");
-    div.innerText=name;
-    div.onclick=()=>selectSite(name);
-    list.appendChild(div);
+// Double-tap to edit client name
+clientNameEl.addEventListener('dblclick', ()=>{
+  const current = clientNameEl.textContent.trim();
+  const newName = prompt('Enter client name:', current);
+  if(newName && newName.trim()){
+    clientNameEl.textContent = newName.trim();
+    localStorage.setItem('levi_client_name', newName.trim());
+  }
+});
+
+
+/* sample rows when empty (calculation examples) */
+if(history.length === 0){
+  history.push({type:'calc', label:"1 ft 2 in × 1 ft 3 in", value:"1.4583 SqFt"});
+  history.push({type:'calc', label:"2000 mm × 200 mm", value:"4.3056 SqFt"});
+  history.push({type:'amount', label:"16.6250 SqFt × ₹80", value:1330});
+}
+
+/* helpers */
+function parseNumber(v){ 
+  if(v==null) return 0; 
+  const s = String(v).replace(/₹/g,'').replace(/,/g,'').match(/-?\d+(\.\d+)?/);
+  if(!s) return 0;
+  const n = parseFloat(s[0]);
+  return isNaN(n)?0:n; 
+}
+function extractNumbersFromText(s){
+  if(s==null) return [];
+  const m = String(s).match(/-?\d[\d,]*\.?\d*/g);
+  if(!m) return [];
+  return m.map(x => parseFloat(String(x).replace(/,/g,''))).filter(n=>!isNaN(n));
+}
+function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); render(); }
+
+/* ---------- Totals logic (v6 UI improved) ---------- */
+function updateTotals(){
+  let sq = 0;
+  let subtotal = 0;
+
+  history.forEach(it=>{
+    const text = `${it.label||""} ${it.value||""}`.trim();
+
+    // Skip ₹ lines (only use for subtotal)
+    if (/₹|rate|qty|x\s*₹/i.test(text)) {
+      if (it.type === "amount") subtotal += parseNumber(it.value);
+      return;
+    }
+
+    // Detect SqFt text
+    const sqftMatch = text.match(/([\d.]+)\s*(?:sq\s*\.?\s*ft|sqft|ft2|ft²)/i);
+    if(sqftMatch){ sq += parseFloat(sqftMatch[1]) || 0; return; }
+
+    // Fallback single number (no ₹ or sq)
+    if(!/sq|₹/i.test(text)){
+      const nums = text.match(/[-+]?\d*\.?\d+/g);
+      if(nums && nums.length===1){
+        const val = parseFloat(nums[0]);
+        if(!isNaN(val)) sq += val;
+      }
+    }
+
+    // subtotal from ₹ values
+    if(it.type==="amount"){ subtotal += parseNumber(it.value); }
+  });
+
+  // GST logic
+  let gstAmt = 0;
+  let total = subtotal;
+  if(window._gstIncluded){
+    gstAmt = +(subtotal * 0.18);
+    total = subtotal + gstAmt;
+  }
+
+ grandBarEl.innerHTML = `
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    row-gap:4px;
+  ">
+    <!-- Left (SqFt) -->
+    <div style="
+      flex:1 1 45%;
+      font-weight:600;
+      min-width:140px;
+      word-break:break-word;
+    ">
+      Total SqFt: ${sq.toFixed(4)}
+    </div>
+
+    <!-- Right (Amounts) -->
+    <div style="
+      flex:1 1 45%;
+      text-align:right;
+      min-width:140px;
+      line-height:1.3;
+      word-break:break-word;
+    ">
+      Subtotal: ₹${subtotal.toLocaleString('en-IN',{maximumFractionDigits:2})}
+    </div>
+  </div>
+
+  <!-- ✅ Full-width white divider -->
+  <div style="
+    border-bottom:1px solid rgba(255,255,255,0.9);
+    margin:6px 0;
+    width:100%;
+    display:block;
+  "></div>
+
+  <div style="
+    text-align:right;
+    line-height:1.4;
+    font-size:clamp(12px,2.6vw,15px);
+    width:100%;
+    word-break:keep-all;
+  ">
+    ${window._gstIncluded
+      ? `
+        <div>GST (18%): ₹${gstAmt.toLocaleString('en-IN',{maximumFractionDigits:2})}</div>
+        <div><b>Total (Incl. GST): ₹${total.toLocaleString('en-IN',{maximumFractionDigits:2})}</b></div>
+      `
+      : `<b>Total Amount: ₹${total.toLocaleString('en-IN',{maximumFractionDigits:2})}</b>`
+    }
+  </div>
+`;
+}
+
+/* Render rows (skip 'note' entries so GST/materials don't appear twice) */
+function render(){
+  historyList.innerHTML = '';
+  history.forEach((it, idx) => {
+    if(it.type === 'note') return;
+    const row = document.createElement('div'); row.className = 'hist-item' + (it.type==='header' ? ' header' : '') + (it.type==='plainheader' ? ' plainheader' : '');
+    const label = document.createElement('div'); label.className = 'label'; label.textContent = it.label || '';
+    const val = document.createElement('div'); val.className = 'value';
+    if(it.type === 'amount') val.textContent = '₹' + parseNumber(it.value).toFixed(2);
+    else val.textContent = (it.value!==undefined && it.value !== null) ? String(it.value) : '';
+    row.appendChild(label); row.appendChild(val);
+    if(it.type !== 'note'){
+      const btn = document.createElement('button'); btn.className = 'menu-btn'; btn.innerText = '⋮';
+      btn.onclick = (e)=>{ e.stopPropagation(); openRowMenu(idx, btn, it); };
+      row.appendChild(btn);
+    }
+    historyList.appendChild(row);
+  });
+  renderFooter();
+  updateTotals();
+}
+
+/* Footer rendering - dynamically add bedroom rows */
+function renderFooter(){
+  footerBox.innerHTML = '';
+  const notes = history.filter(it => it.type === 'note');
+  const map = {};
+  notes.forEach(n => { if(n.label) {
+    map[n.label] = n.value;
+  }});
+
+  const gstVal = map['GST'] || (window._gstIncluded ? 'Included (18%)' : 'Not Included');
+  const gstRow = document.createElement('div'); gstRow.className = 'footer-row gst-highlight';
+  gstRow.innerHTML = `<div class="f-label">GST – ${gstVal}</div>`;
+  gstRow.style.position = 'relative';
+  const gstBtn = document.createElement('button'); gstBtn.className='footer-menu-btn'; gstBtn.innerText='⋮';
+  gstBtn.onclick = (e)=>{ e.stopPropagation(); openFooterMenu(gstBtn, 'GST'); };
+  gstRow.appendChild(gstBtn);
+  footerBox.appendChild(gstRow);
+
+  Object.keys(map).forEach(label => {
+    const bedroomMatch = label.match(/^Material\s*\((.+)\)$/i);
+    if(bedroomMatch){
+      const r = document.createElement('div'); r.className='footer-row';
+      r.innerHTML = `<div class="f-label">Material (${bedroomMatch[1]})</div><div class="f-value">${map[label]}</div>`;
+      r.style.position='relative';
+      const b = document.createElement('button'); b.className='footer-menu-btn'; b.innerText='⋮';
+      b.onclick = (e)=>{ e.stopPropagation(); openFooterMenu(b, label); };
+      r.appendChild(b);
+      footerBox.appendChild(r);
+    }
+  });
+
+  const otherLabels = ['Hardware','Handle','Quotation Valid Till'];
+  otherLabels.forEach(lbl => {
+    if(map[lbl]){
+      const r = document.createElement('div'); r.className='footer-row';
+      const displayLabel = lbl.replace(/^Material \(|\)$/g,'').replace('Material (','Material: ');
+      r.innerHTML = `<div class="f-label">${displayLabel}</div><div class="f-value">${map[lbl]}</div>`;
+      r.style.position='relative';
+      const b = document.createElement('button'); b.className='footer-menu-btn'; b.innerText='⋮';
+      b.onclick = (e)=>{ e.stopPropagation(); openFooterMenu(r,lbl); };
+      r.appendChild(b);
+      footerBox.appendChild(r);
+    }
   });
 }
 
-function addSite(){
-  const name = prompt("Enter site name");
-  if(!name) return;
-  if(sites[name]) return alert("Site already exists");
-
-  sites[name]={};
-  rooms.forEach(r=>sites[name][r]=[]);
-  saveData();
-  renderSites();
+/* Find note index by label */
+function findNoteIndex(label){
+  return history.findIndex(it => it.type === 'note' && it.label === label);
 }
 
-function selectSite(name){
-  currentSite=name;
-  currentRoom=null;
-  renderSites();
-  document.getElementById("siteDetails").style.display="block";
-  renderRooms();
-  renderRoomPanel();
-  renderAllItems();
-  updateTotal();
+/* Dropdown helpers and row actions (3-dot menu) */
+let activeDropdown = null;
+function openDropdownInsideContainer(container, element, menuHtml, preferLeft=true){
+  closeActiveDropdown();
+  const dropdown = document.createElement('div'); dropdown.className='dropdown'; dropdown.innerHTML=menuHtml;
+  container.appendChild(dropdown);
+
+  const containerRect = container.getBoundingClientRect();
+  const elRect = element.getBoundingClientRect();
+  dropdown.style.display='block'; dropdown.style.visibility='hidden';
+  const ddW = dropdown.offsetWidth; const ddH = dropdown.offsetHeight;
+  dropdown.style.visibility='';
+
+  let left = elRect.left - containerRect.left - ddW - 10 + container.scrollLeft;
+  if(left < 6 || !preferLeft){
+    left = elRect.right - containerRect.left + 10 + container.scrollLeft;
+    if(left + ddW > container.scrollWidth - 6) left = container.scrollWidth - ddW - 12;
+  }
+  let top = elRect.top - containerRect.top + (elRect.height/2) - (ddH/2) + container.scrollTop;
+  if(top < container.scrollTop + 6) top = container.scrollTop + 6;
+  if(top + ddH > container.scrollTop + container.clientHeight - 6) top = container.scrollTop + container.clientHeight - ddH - 6;
+
+  dropdown.style.left = left + 'px';
+  dropdown.style.top = top + 'px';
+  dropdown.classList.add('show');
+  activeDropdown = dropdown;
+  setTimeout(()=>{ document.addEventListener('click', outsideClickHandler); },10);
+  dropdown.addEventListener('click', (ev)=>ev.stopPropagation());
+  dropdown.addEventListener('click', onActiveDropdownClick);
+}
+function closeActiveDropdown(){ if(activeDropdown){ activeDropdown.removeEventListener('click', onActiveDropdownClick); activeDropdown.remove(); activeDropdown=null; document.removeEventListener('click', outsideClickHandler); } }
+function outsideClickHandler(e){ if(activeDropdown && !activeDropdown.contains(e.target)) closeActiveDropdown(); }
+
+function openRowMenu(index, btnEl, it){
+  const menuHtml = (it.type==='header') ?
+    `<button data-action="editRow">✏️ Edit Row</button>
+     <button data-action="deleteRow">🗑️ Delete Row</button>
+     <button data-action="addFooter">📄 Add Footer</button>` :
+    `<button data-action="addHeader">➕ Add Header</button>
+     <button data-action="addPlainHeader">➕ Plain Header</button>
+     <button data-action="subtotal">🧮 Subtotal</button>
+     <button data-action="amount">💰 Amount</button>
+     <button data-action="accessories">🧰 Accessories</button>
+     <button data-action="editRow">✏️ Edit Row</button>
+     <button data-action="deleteRow">🗑️ Delete Row</button>`;
+  openDropdownInsideContainer(historyList, btnEl, menuHtml, true);
+  if(activeDropdown) activeDropdown.dataset.index = index;
 }
 
-/* ---------- ROOMS ---------- */
-function renderRooms(){
-  const list=document.getElementById("roomsList");
-  list.innerHTML="";
-  rooms.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="room-item-btn"+(r===currentRoom?" active":"");
-    div.innerText=r;
-    div.onclick=()=>selectRoom(r);
-    list.appendChild(div);
-  });
-}
+function onActiveDropdownClick(e){
+  const btn = e.target.closest('button'); if(!btn) return;
+  const action = btn.dataset.action;
 
-function selectRoom(room){
-  currentRoom=room;
-  renderRooms();
-  renderRoomPanel();
-}
-
-/* ---------- ROOM PANEL ---------- */
-function renderRoomPanel(){
-  if(!currentRoom){
-    document.getElementById("roomPanel").innerHTML="<i>Select a room</i>";
+  // Folder menu actions
+  if(activeDropdown && activeDropdown.dataset.folderName){
+    const folderName = activeDropdown.dataset.folderName;
+    const folders = getFolders();
+    if(action === 'folderOpen'){
+      openFolder(folderName);
+    } else if(action === 'folderDelete'){
+      if(confirm('Delete folder "' + folderName + '"?')){
+        delete folders[folderName];
+        saveFolders(folders);
+        if(typeof openFolderModal === 'function'){
+          openFolderModal();
+        }
+      }
+    } else if(action === 'folderConfirm'){
+      const entry = folders[folderName];
+      let newEntry;
+      if(Array.isArray(entry)){
+        newEntry = { history: entry, confirmed: true };
+      } else {
+        newEntry = Object.assign({}, entry || {}, { confirmed: true });
+      }
+      folders[folderName] = newEntry;
+      saveFolders(folders);
+      alert('Folder marked as confirmed: ' + folderName);
+    }
+    closeActiveDropdown();
     return;
   }
-  document.getElementById("roomPanel").innerHTML=`
-    <b>${currentRoom}</b>
-    <input placeholder="Item name" id="itemInput">
-    <input placeholder="Amount" type="number" id="amtInput">
-    <button class="btn btn-room" onclick="addItem()">Add</button>
-  `;
-}
 
-/* ---------- ITEMS ---------- */
-function addItem(){
-  const item=document.getElementById("itemInput").value;
-  const amt=parseFloat(document.getElementById("amtInput").value);
-  if(!item || isNaN(amt)) return alert("Enter item and amount");
-
-  sites[currentSite][currentRoom].push({item,amt});
-  saveData();
-  renderAllItems();
-  updateTotal();
-  document.getElementById("itemInput").value="";
-  document.getElementById("amtInput").value="";
-}
-
-function renderAllItems(){
-  const box=document.getElementById("allItemsList");
-  box.innerHTML="";
-
-  rooms.forEach(room=>{
-    if(sites[currentSite][room].length>0){
-      const title=document.createElement("div");
-      title.className="section-title";
-      title.innerText=room.toUpperCase();
-      box.appendChild(title);
-
-      sites[currentSite][room].forEach((i,idx)=>{
-        const row=document.createElement("div");
-        row.className="row-item";
-        row.innerHTML=`
-          <span>${i.item}</span>
-          <span>Rs. ${i.amt}</span>
-          <button class="btn btn-edit" onclick="editItem('${room}',${idx})">✏</button>
-          <button class="btn btn-del" onclick="deleteItem('${room}',${idx})">🗑</button>
-        `;
-        box.appendChild(row);
-      });
+  if(activeDropdown && activeDropdown.dataset.footerLabel){
+    const label = activeDropdown.dataset.footerLabel;
+    if(action === 'editFooter') { onFooterAction('editFooter', label); }
+    else if(action === 'deleteFooter') { onFooterAction('deleteFooter', label); }
+    closeActiveDropdown(); return;
+  }
+  const idx = activeDropdown && activeDropdown.dataset.index !== undefined ? parseInt(activeDropdown.dataset.index) : -1;
+  if(action === 'deleteRow'){
+    if(idx>=0 && confirm('Delete this row?')){ history.splice(idx,1); persist(); }
+  } else if(action === 'editRow'){
+    if(idx>=0){
+      const it = history[idx];
+      const nl = prompt('Edit label:', it.label||''); if(nl===null){ closeActiveDropdown(); return; }
+      const nv = prompt('Edit value:', it.value!==undefined?String(it.value):''); if(nv===null){ closeActiveDropdown(); return; }
+      it.label = nl; it.value = nv; persist();
     }
-  });
+  } else if(action === 'addHeader'){
+    if(idx>=0){ const txt = prompt('Header text:'); if(txt){ history.splice(idx,0,{type:'header',label:txt,value:''}); persist(); } }
+  } else if(action === 'addPlainHeader'){ if(idx>=0){ const txt=prompt('Plain header text:'); if(txt){ history.splice(idx,0,{type:'plainheader',label:txt,value:''}); persist(); }} }
+ else if(action === 'addFooter'){
+    if(idx>=0){ const txt = prompt('Footer text:'); if(txt){ history.splice(idx+1,0,{type:'footer',label:txt,value:''}); persist(); } }
+  } else if(action === 'subtotal'){
+    if(idx>=0){
+      let t = 0;
+      for(let i=0;i<=idx;i++){
+        const it = history[i];
+        if(!it) continue;
+
+        // ONLY add amount rows (₹)
+        if(it.type === 'amount'){
+          t += parseNumber(it.value);
+        }
+      }
+
+      history.splice(idx+1,0,{
+        type:'subtotal',
+        label:'Subtotal',
+        value: t.toFixed(2)
+      });
+
+      persist();
+    }
+  } else if(action === 'amount'){
+    if(idx>=0){
+      const base = history[idx]; 
+      const r = parseFloat(prompt('Rate ₹:','0'))||0; 
+      let sqft = 0;
+      const nums = extractNumbersFromText(base.value);
+      if(nums.length) sqft = nums[0];
+      else {
+        const nums2 = extractNumbersFromText(base.label);
+        if(nums2.length) sqft = nums2[0];
+      }
+      const tot = sqft * r;
+      history.splice(idx+1,0,{type:'amount',label:`${sqft.toFixed(4)} SqFt × ₹${r}`, value: tot}); persist();
+    }
+  } else if(action === 'accessories'){
+    if(idx>=0){
+      const name = prompt('Enter accessory name:');
+      if(name === null || name.trim()===''){ closeActiveDropdown(); return; }
+      const qtyRaw = prompt('Enter quantity (number):', '1');
+      if(qtyRaw === null){ closeActiveDropdown(); return; }
+      const qty = parseFloat(qtyRaw.replace(/[^0-9.\-]/g,'')) || 0;
+      const rateRaw = prompt('Enter rate (₹ per unit):', '0');
+      if(rateRaw === null){ closeActiveDropdown(); return; }
+      const rate = parseFloat(rateRaw.replace(/[^0-9.\-]/g,'')) || 0;
+      const total = qty * rate;
+      history.splice(idx+1,0,{type:'amount', label: `${name} (Qty: ${qty} × ₹${rate})`, value: total});
+      persist();
+    }
+  }
+  closeActiveDropdown();
 }
 
-function editItem(room,idx){
-  const data = sites[currentSite][room][idx];
-  const newItem = prompt("Edit item name", data.item);
-  const newAmt = prompt("Edit amount", data.amt);
-  if(!newItem || isNaN(newAmt)) return;
-
-  sites[currentSite][room][idx] = {item:newItem, amt:parseFloat(newAmt)};
-  saveData();
-  renderAllItems();
-  updateTotal();
+/* Footer menu open (Edit/Delete only) */
+function openFooterMenu(rowEl, label){
+  const menuHtml = `<button data-action="editFooter">✏️ Edit</button><button data-action="deleteFooter">🗑️ Delete</button>`;
+  openDropdownInsideContainer(footerBox, rowEl, menuHtml, true);
+  if(activeDropdown) activeDropdown.dataset.footerLabel = label;
 }
-
-function deleteItem(room,idx){
-  if(!confirm("Delete this item?")) return;
-  sites[currentSite][room].splice(idx,1);
-  saveData();
-  renderAllItems();
-  updateTotal();
-}
-
-/* ---------- TOTAL ---------- */
-function updateTotal(){
-  if(!currentSite) return;
-  let total = 0;
-  rooms.forEach(r=>{
-    sites[currentSite][r].forEach(i=> total += Number(i.amt));
-  });
-  document.getElementById("totalAmount").innerText = "Total: Rs. " + total.toFixed(2);
-}
-
-/* ---------- PDF HELPERS ---------- */
-function drawHeader(doc){
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(16);
-  doc.text("LEVI INTERIOR - SITE REPORT",105,15,{align:"center"});
-  doc.setFontSize(12);
-  doc.setFont("helvetica","normal");
-  doc.text("Site: " + currentSite,10,25);
-}
-
-function addPageNumbers(doc){
-  const pageCount = doc.getNumberOfPages();
-  for(let i=1;i<=pageCount;i++){
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.text("Page " + i + " of " + pageCount,105,290,{align:"center"});
+function onFooterAction(action, label){
+  const idx = findNoteIndex(label);
+  if(action === 'deleteFooter'){
+    if(idx>=0){
+      if(confirm('Delete "'+label+'"?')){ history.splice(idx,1); persist(); }
+    } else alert('Nothing saved for "'+label+'".');
+  } else if(action === 'editFooter'){
+    const current = (idx>=0 ? history[idx].value : '');
+    const nv = prompt('Edit ' + label + ':', current);
+    if(nv === null) return;
+    if(idx>=0){ history[idx].value = nv; } else { history.push({type:'note', label: label, value: nv}); }
+    persist();
   }
 }
 
-/* ---------- PDF ---------- */
-function downloadPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+/* ---------------- Notes modal interactions ---------------- */
+const notesModal = document.getElementById('notesModal');
+const sections = {
+  main: document.getElementById('mainMenu'),
+  gst: document.getElementById('gstSection'),
+  materialMenu: document.getElementById('materialMenu'),
+  bedrooms: document.getElementById('bedroomsSection'),
+  kitchen: document.getElementById('kitchenSection'),
+  hall: document.getElementById('hallSection'),
+  tvunit: document.getElementById('tvunitSection'),
+  hardware: document.getElementById('hardwareSection'),
+  handle: document.getElementById('handleSection'),
+  quotation: document.getElementById('quotationSection')
+};
+function showSection(name){ Object.values(sections).forEach(el=>el.classList.remove('active')); const s=sections[name]; if(s) s.classList.add('active'); }
+function openNotes(){ showSection('main'); notesModal.style.display='flex'; }
+function closeNotes(){ notesModal.style.display='none'; showSection('main'); }
 
-  drawHeader(doc);
-  let y = 35;
+document.getElementById('notesBtn').onclick = openNotes;
+document.getElementById('menuGST').onclick = ()=> showSection('gst');
+document.getElementById('menuMaterial').onclick = ()=> showSection('materialMenu');
+document.getElementById('menuHardware').onclick = ()=> showSection('hardware');
+document.getElementById('menuHandle').onclick = ()=> showSection('handle');
+document.getElementById('menuQuotation').onclick = ()=> showSection('quotation');
+document.getElementById('menuCancel').onclick = closeNotes;
 
-  let grandTotal = 0;
+/* GST choices wiring */
+const gstIncludedEl = document.getElementById('gstIncluded');
+const gstNotIncludedEl = document.getElementById('gstNotIncluded');
+function updateGstUI(){
+  if(window._gstIncluded){
+    gstIncludedEl.classList.add('selected'); gstIncludedEl.classList.remove('notselected');
+    gstNotIncludedEl.classList.remove('selected'); gstNotIncludedEl.classList.add('notselected');
+  } else {
+    gstIncludedEl.classList.remove('selected'); gstIncludedEl.classList.add('notselected');
+    gstNotIncludedEl.classList.add('selected'); gstNotIncludedEl.classList.remove('notselected');
+  }
+}
+gstIncludedEl.onclick = ()=>{ window._gstIncluded = true; localStorage.setItem('levi_gst_included','true'); updateTotals(); updateGstUI(); };
+gstNotIncludedEl.onclick = ()=>{ window._gstIncluded = false; localStorage.setItem('levi_gst_included','false'); updateTotals(); updateGstUI(); };
+updateGstUI();
 
-  rooms.forEach(room=>{
-    if(sites[currentSite][room].length > 0){
+document.getElementById('backFromGst').onclick = ()=> showSection('main');
+function removeExistingGstHistory(){ history = history.filter(it => !(it.type === 'note' && it.label === 'GST')); }
+document.getElementById('saveGstBtn').onclick = ()=>{ 
+  removeExistingGstHistory();
+  history.push({type:'note', label:'GST', value: window._gstIncluded ? 'Included (18%)' : 'Not Included'});
+  localStorage.setItem('levi_gst_included', window._gstIncluded ? 'true' : 'false');
+  persist(); alert('GST saved to history.'); showSection('main');
+};
 
-      doc.setFont("helvetica","bold");
-      doc.text(room.toUpperCase(),10,y);
-      y+=6;
+/* Bedrooms logic */
+const bedroomsList = document.getElementById('bedroomsList');
+let bedroomCounter = 0;
+function addBedroomField(nameValue, contentValue){
+  bedroomCounter++;
+  const container = document.createElement('div');
+  container.className = 'bed-item';
 
-      doc.setFont("helvetica","normal");
-      doc.text("Item",12,y);
-      doc.text("Amount",170,y,{align:"right"});
-      y+=4;
-      doc.line(10,y,200,y);
-      y+=4;
+  const nameInput = document.createElement('input');
+  nameInput.placeholder = 'Bedroom name (e.g. Master Bedroom)';
+  nameInput.value = nameValue || '';
+  nameInput.className = 'bed-name';
 
-      let roomTotal = 0;
+  const contentInput = document.createElement('textarea');
+  contentInput.placeholder = 'Bedroom material / content details';
+  contentInput.value = contentValue || '';
+  contentInput.className = 'bed-content';
 
-      sites[currentSite][room].forEach(i=>{
-        doc.text(i.item,12,y);
-        doc.text("Rs. " + i.amt.toFixed(2),170,y,{align:"right"});
-        roomTotal += i.amt;
-        grandTotal += i.amt;
-        y+=6;
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove-bed';
+  removeBtn.textContent = '🗑';
+  removeBtn.onclick = () => { container.remove(); };
 
-        if(y>270){
-          doc.addPage();
-          drawHeader(doc);
-          y = 35;
-        }
-      });
+  container.appendChild(nameInput);
+  container.appendChild(contentInput);
+  container.appendChild(removeBtn);
+  bedroomsList.appendChild(container);
+}
+function loadBedroomsFromHistory(){
+  bedroomsList.innerHTML = '';
+  const existing = history.filter(it => it.type === 'note' && /^Material\s*\(.+\)$/i.test(it.label || ''));
+  if(existing.length){
+    existing.forEach(n => {
+      const match = (n.label || '').match(/^Material\s*\((.+)\)$/i);
+      const name = match ? match[1] : '';
+      const content = n.value || '';
+      addBedroomField(name, content);
+    });
+  } else {
+    addBedroomField();
+  }
+}
+document.getElementById('addBedroom').onclick = ()=> addBedroomField();
+document.getElementById('clearBedrooms').onclick = ()=> { bedroomsList.innerHTML=''; bedroomCounter=0; };
 
-      doc.setFont("helvetica","bold");
-      doc.text(" Total: Rs. " + roomTotal.toFixed(2),170,y,{align:"right"});
-      y+=4;
-      doc.line(10,y,200,y);
-      y+=10;
+document.getElementById('saveBedrooms').onclick = ()=>{
+  const items = bedroomsList.querySelectorAll('.bed-item');
+  let added = 0;
+  items.forEach(item => {
+    const nameEl = item.querySelector('.bed-name');
+    const contentEl = item.querySelector('.bed-content');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const content = contentEl ? contentEl.value.trim() : '';
+    if(name && content){
+      history.push({type:'note', label:`Material (${name})`, value: content});
+      added++;
     }
   });
+  if(added){
+    persist();
+    alert('Bedrooms saved.');
+  } else {
+    alert('No bedroom values to save.');
+  }
+  showSection('materialMenu');
+};
+document.getElementById('backFromBedrooms').onclick = ()=> showSection('materialMenu');
+document.getElementById('menuMaterialBedrooms').onclick = ()=>{ loadBedroomsFromHistory(); showSection('bedrooms'); };
+document.getElementById('menuMaterialKitchen').onclick = ()=> showSection('kitchen');
+document.getElementById('menuMaterialHall').onclick = ()=> showSection('hall');
+document.getElementById('menuMaterialTVUnit').onclick = ()=> showSection('tvunit');
+document.getElementById('backFromMaterial').onclick = ()=> showSection('main');
 
-  doc.setFontSize(14);
-  doc.text("Grand Total: Rs. " + grandTotal.toFixed(2),170,y,{align:"right"});
+document.getElementById('saveKitchen').onclick = ()=>{ const val = document.getElementById('kitchenInput').value.trim(); if(val){ history.push({type:'note', label:'Material (Kitchen)', value:val}); persist(); alert('Kitchen saved.'); } else alert('Enter kitchen material first.'); showSection('materialMenu'); };
+document.getElementById('saveHall').onclick = ()=>{ const val = document.getElementById('hallInput').value.trim(); if(val){ history.push({type:'note', label:'Material (Hall)', value:val}); persist(); alert('Hall saved.'); } else alert('Enter hall material first.'); showSection('materialMenu'); };
+document.getElementById('saveTVUnit').onclick = ()=>{ const val = document.getElementById('tvunitInput').value.trim(); if(val){ history.push({type:'note', label:'Material (TV Unit)', value:val}); persist(); alert('TV Unit saved.'); } else alert('Enter TV Unit material first.'); showSection('materialMenu'); };
+document.getElementById('backFromTVUnit').onclick = ()=> showSection('materialMenu');
 
-  addPageNumbers(doc);
-  doc.save(currentSite+"_report.pdf");
+document.getElementById('saveHardware').onclick = ()=>{ const val = document.getElementById('hardwareInput').value.trim(); if(val){ history.push({type:'note', label:'Hardware', value:val}); persist(); alert('Hardware saved.'); } else alert('Enter hardware first.'); showSection('main'); };
+document.getElementById('saveHandle').onclick = ()=>{ const val = document.getElementById('handleInput').value.trim(); if(val){ history.push({type:'note', label:'Handle', value:val}); persist(); alert('Handle saved.'); } else alert('Enter handle first.'); showSection('main'); };
+document.getElementById('saveQuotation').onclick = ()=>{ const val = document.getElementById('quotationInput').value.trim(); if(val){ history.push({type:'note', label:'Quotation Valid Till', value:val}); persist(); alert('Quotation saved.'); } else alert('Enter quotation date first.'); showSection('main'); };
+
+// Folder helpers
+function getFolders(){
+  try{
+    const raw = localStorage.getItem('levi_folders') || '{}';
+    const obj = JSON.parse(raw);
+    if(obj && typeof obj === 'object') return obj;
+    return {};
+  }catch(e){
+    return {};
+  }
+}
+function saveFolders(folders){
+  localStorage.setItem('levi_folders', JSON.stringify(folders || {}));
 }
 
-renderSites();
+// Folder modal logic
+const folderModal = document.getElementById('folderModal');
+const foldersListEl = document.getElementById('foldersList');
+const closeFolderModalBtn = document.getElementById('closeFolderModal');
+if(closeFolderModalBtn){
+  closeFolderModalBtn.onclick = ()=>{ folderModal.style.display = 'none'; };
+}
+
+function openFolder(name){
+  const folders = getFolders();
+  const entry = folders[name];
+  if(!entry){
+    alert('Folder not found');
+    return;
+  }
+  let folderHistory;
+  if(Array.isArray(entry)){
+    folderHistory = entry;
+  } else if(entry && Array.isArray(entry.history)){
+    folderHistory = entry.history;
+  } else {
+    folderHistory = [];
+  }
+  history = JSON.parse(JSON.stringify(folderHistory));
+  persist();
+  folderModal.style.display = 'none';
+  alert('Loaded folder: ' + name);
+}
+
+function openFolderMenu(btn, name){
+  const menuHtml = `
+   <button data-action="folderOpen">📂 Open</button>
+   <button data-action="folderDelete">🗑️ Delete</button>
+   <button data-action="folderConfirm">✅ Confirm Site</button>
+  `;
+  openDropdownInsideContainer(foldersListEl, btn, menuHtml, true);
+  if(activeDropdown){
+    activeDropdown.dataset.folderName = name;
+  
+if(activeDropdown && activeDropdown.dataset.folderName){
+    const r = btn.getBoundingClientRect();
+    const c = foldersListEl.getBoundingClientRect();
+    activeDropdown.style.top = (r.top - c.top + r.height + foldersListEl.scrollTop) + "px";
+    activeDropdown.style.left = (r.left - c.left - 160 + foldersListEl.scrollLeft) + "px";
+}
+
+}
+
+/* Folder dropdown position override */
+if(activeDropdown && activeDropdown.dataset.folderName){
+    const btn = elementRef;
+    activeDropdown.style.top = (btn.offsetTop + 28) + "px";
+    activeDropdown.style.left = (btn.offsetLeft - 150) + "px";
+}
+
+
+}
+
+function openFolderModal(){
+  const folders = getFolders();
+  foldersListEl.innerHTML = '';
+  const names = Object.keys(folders);
+  if(!names.length){
+    const p = document.createElement('p');
+    p.textContent = 'No folders saved yet.';
+    foldersListEl.appendChild(p);
+  } else {
+    names.forEach(name => {
+      const row = document.createElement('div');
+      row.className = 'footer-row';
+      row.style.cursor = 'pointer';
+      row.dataset.folderName = name;
+
+      const labelEl = document.createElement('div');
+      labelEl.className = 'f-label';
+      labelEl.textContent = name;
+
+      const valueEl = document.createElement('div');
+      valueEl.className = 'f-value';
+      valueEl.textContent = 'Tap to load this folder';
+
+      const menuBtn = document.createElement('button');
+      menuBtn.className = 'footer-menu-btn';
+      menuBtn.innerText = '⋮';
+      menuBtn.onclick = (e)=>{
+        e.stopPropagation();
+        openFolderMenu(menuBtn, name);
+      };
+
+      row.appendChild(labelEl);
+      row.appendChild(valueEl);
+      row.appendChild(menuBtn);
+
+      row.onclick = ()=> openFolder(name);
+      foldersListEl.appendChild(row);
+    });
+  }
+  folderModal.style.display = 'flex';
+}
+
+/* ---------------- Save/restore/clear ---------------- */
+document.getElementById('saveBtn').onclick = () => {
+  const cname = clientNameEl.textContent || 'Unnamed';
+  const blob = new Blob([JSON.stringify(history,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`calc_${cname}_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); alert('💾 File saved!');
+};
+document.getElementById('restoreBtn').onclick = () => {
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const r=new FileReader();r.onload=()=>{
+      try{ history = JSON.parse(r.result); persist(); alert('♻️ Backup restored successfully!'); }
+      catch(err){ alert('❌ Invalid file format.'); }
+    };r.readAsText(file);
+  };inp.click();
+};
+document.getElementById('clearBtn').onclick = ()=>{ if(confirm('⚠️ Clear all history?')){ history=[]; persist(); alert('✅ All cleared!'); } };
+document.getElementById('folderBtn').onclick = ()=> alert('📁 Folder coming soon.');
+
+/* ---------------- Download flow (client confirm -> modal -> PDF / Excel) --------------- */
+const clientModal = document.getElementById('clientModal');
+const clientInput = document.getElementById('clientNameInput');
+document.getElementById('downloadBtn').onclick = ()=>{ clientInput.value = clientNameEl.textContent.trim(); clientModal.style.display = 'flex'; };
+document.getElementById('clientCancel').onclick = ()=>{ clientModal.style.display = 'none'; };
+document.getElementById('clientContinue').onclick = ()=>{ const name = clientInput.value.trim() || 'Unnamed'; localStorage.setItem('levi_client_name', name); clientNameEl.textContent=name; clientModal.style.display='none'; document.getElementById('downloadModal').style.display='flex'; };
+document.getElementById('cancelDownload').onclick = ()=>{ document.getElementById('downloadModal').style.display='none'; };
+
+/* Excel download */
+document.getElementById('excelDownload').onclick = () => {
+  const cname = clientNameEl.textContent || 'Unnamed';
+  const ws_data = [];
+const staffForExcel = ((quotationNameEl && quotationNameEl.textContent) || window._leviStaffName || 'User');
+ws_data.push(['Levi History']);
+ws_data.push(['Client', cname]);
+ws_data.push(['Quotation by', staffForExcel]);
+ws_data.push(['Date', new Date().toLocaleDateString('en-GB')]);
+  ws_data.push([]);
+  ws_data.push(['Label','Value','Type']);
+  history.forEach(r=>{
+    ws_data.push([r.label || '', r.value || '', r.type || '']);
+  });
+  ws_data.push([]);
+  ws_data.push(['GST','', (window._gstIncluded ? 'Included (18%)' : 'Not Included')]);
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, 'Levi_History');
+  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([wbout],{type:'application/octet-stream'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const safeName = (cname || 'client').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+  a.download = `LeviHistory_${safeName}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  document.getElementById('downloadModal').style.display='none';
+};
+
+/* ---------------- PDF download (multi-page) with SAFE LINE-BASED SPLIT ---------------- */
+document.getElementById('pdfDownload').onclick = async () => {
+  // Hide UI parts that should not appear in PDF
+  headerEl.style.display = 'none';
+  clientRowEl.style.display = 'none';
+  updateTotals();
+
+  document.getElementById('downloadModal').style.display = 'none';
+  const prevDisplay = bottomArea.style.display;
+  bottomArea.style.display = 'none';
+
+  // Allow layout to settle
+  await new Promise(r => setTimeout(r, 200));
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = pdf.internal.pageSize.getHeight();
+
+    const contentStartY = 160;  // content starts below repeating header
+    const marginBottom = 20;
+
+    const wrap = document.getElementById('wrap');
+    // ===== MOBILE & PC SAME PDF FIX =====
+    const originalWidth = wrap.style.width;
+    wrap.style.width = "720px";   // force PC-like layout on mobile
+
+    const wrapRect = wrap.getBoundingClientRect();
+    const scaleFactor = 2; // fixed scale for all devices
+
+    // === Collect SAFE line-based break positions (in canvas pixels) ===
+    let breaks = [0];
+    function addBreak(y) {
+      if (typeof y === 'number' && y > 0) {
+        breaks.push(Math.round(y));
+      }
+    }
+
+    const blockEls = Array.from(document.querySelectorAll('.hist-item, .footer-row, #grandBar'));
+    blockEls.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const bottomDOM = r.bottom - wrapRect.top;          // px in DOM
+      const bottomCanvas = bottomDOM * scaleFactor;       // px in canvas
+      addBreak(bottomCanvas);
+
+      // Also add approximate line-level breaks for wrapped text
+      const textNodes = el.querySelectorAll('.label, .value, .f-label, .f-value');
+      textNodes.forEach(node => {
+        const style = window.getComputedStyle(node);
+        let lineHeight = parseFloat(style.lineHeight);
+        const fontSize = parseFloat(style.fontSize) || 14;
+        if (!lineHeight || isNaN(lineHeight)) {
+          lineHeight = fontSize * 1.2; // fallback
+        }
+
+        const nr = node.getBoundingClientRect();
+        const totalH = node.scrollHeight || (nr.bottom - nr.top);
+        const lines = Math.max(1, Math.round(totalH / lineHeight));
+
+        for (let i = 1; i <= lines; i++) {
+          const lineBottomDOM = (nr.top - wrapRect.top) + (lineHeight * i);
+          if (lineBottomDOM < (nr.bottom - wrapRect.top) - 1) {
+            const lineBottomCanvas = lineBottomDOM * scaleFactor;
+            addBreak(lineBottomCanvas);
+          }
+        }
+      });
+    });
+
+    // Take single html2canvas snapshot
+    const canvas = await html2canvas(wrap, {
+      scale: scaleFactor,
+      useCORS: true,
+      allowTaint: true,
+      width: wrap.scrollWidth,
+      height: wrap.scrollHeight,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY
+    });
+
+    const totalHeight = canvas.height;
+
+    // Page height (in canvas px) corresponding to available PDF height
+    const pageHeightPx = Math.floor(
+      (pdfH - contentStartY - marginBottom) * (canvas.width / pdfW)
+    );
+
+    const safeGap = 5;          // keep small margin at bottom
+    const MIN_SLICE_HEIGHT = 20;
+
+    // Finalize breaks list (after we know total canvas height)
+    breaks = breaks
+      .filter(y => y >= 0 && y <= totalHeight)
+      .sort((a, b) => a - b);
+
+    function getNextBreak(start) {
+      const maxH = start + pageHeightPx - safeGap;
+      const minStart = start + 10;   // avoid cutting exactly at the top
+
+      let candidate = null;
+      for (const b of breaks) {
+        if (b <= minStart) continue;
+        if (b > maxH) break;
+        candidate = b;              // biggest break <= maxH
+      }
+      if (!candidate) {
+        candidate = Math.min(maxH, totalHeight);
+      }
+      return candidate;
+    }
+
+    let page = 0;
+    let sliceStart = 0;
+
+    // Prepare logo for header
+    const logo = new Image();
+    logo.crossOrigin = 'anonymous';
+    logo.src = 'https://i.imgur.com/284Ol04.jpeg';
+    await new Promise(res => { logo.onload = res; logo.onerror = res; });
+
+    while (sliceStart < totalHeight - 40) {
+      const sliceEnd = getNextBreak(sliceStart);
+      let sliceH = Math.max(MIN_SLICE_HEIGHT, Math.round(sliceEnd - sliceStart));
+      if (sliceStart + sliceH > totalHeight) {
+        sliceH = totalHeight - sliceStart;
+      }
+
+      // FIX: prevent extra blank last page
+if (sliceH < 150) { break; }
+
+const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = sliceH;
+      const ctx = sliceCanvas.getContext('2d');
+
+      ctx.drawImage(
+        canvas,
+        0, sliceStart,
+        canvas.width, sliceH,
+        0, 0,
+        canvas.width, sliceH
+      );
+
+      const imgData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+      const imgH = (sliceCanvas.height * pdfW) / sliceCanvas.width;
+
+      if (page > 0) pdf.addPage();
+
+      // ==== HEADER (repeat on every page) ====
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pdfW, 78, 'F');
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('www.leviinterior.in', 40, 24);
+      pdf.text('leviinteriortech@gmail.com', 40, 40);
+      pdf.text('+91-7207885880', 40, 56);
+
+      try {
+        pdf.addImage(logo, 'JPEG', pdfW - 150, 1, 100, 83);
+      } catch (e) {}
+
+      pdf.setFillColor(0, 0, 0);
+      pdf.rect(0, 78, pdfW, 36, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.text('Levi History', 40, 102);
+      pdf.text(dateBox.textContent, pdfW - 140, 102);
+
+      pdf.setDrawColor(16, 112, 216);
+      pdf.setLineWidth(2);
+      pdf.line(0, 110, pdfW, 110);
+
+      // CLIENT & QUOTATION BY bar
+      pdf.setFillColor(0, 0, 0);
+      pdf.rect(0, 118, pdfW, 32, 'F');
+      pdf.setFontSize(16);
+      pdf.setTextColor(255, 255, 255);
+
+      const clientNamePdf = (clientNameEl.textContent || '').toUpperCase();
+      const staffNamePdf = ((quotationNameEl && quotationNameEl.textContent) || window._leviStaffName || 'USER').toUpperCase();
+      pdf.text(`CLIENT: ${clientNamePdf}`, 40, 140);
+
+      const qbText = `QUOTATION BY: ${staffNamePdf}`;
+      const qbW = pdf.getTextWidth(qbText);
+      pdf.text(qbText, pdfW - 40 - qbW, 140);
+
+      // ==== MAIN CONTENT IMAGE ====
+      pdf.addImage(imgData, 'JPEG', 0, contentStartY, pdfW, imgH);
+
+      // Page number
+      pdf.setFontSize(10);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(`Page ${page + 1}`, 40, pdfH - 20);
+
+      sliceStart += sliceH;
+      page++;
+    }
+
+    const safeName = (clientNameEl.textContent || 'client')
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9_]/g, '');
+
+    
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.setTextColor(80,80,80);
+        pdf.text(`Page ${i} of ${totalPages}`, 40, pdfH - 20);
+    }
+
+    pdf.save(`LeviHistory_${safeName}_${new Date().toISOString().slice(0,10)}.pdf`);
+
+  } catch (err) {
+    alert('PDF Error: ' + err);
+  } finally {
+    // Restore UI
+    headerEl.style.display = '';
+    clientRowEl.style.display = '';
+    bottomArea.style.display = prevDisplay || 'block';
+  }
+};
+/* initial render */
+render();
 </script>
 
+<!-- Save to Folder Feature -->
+<script>
+function saveToFolder(){
+  const cname = localStorage.getItem('levi_client_name') || 'Unnamed';
+  const folders = getFolders();
+  folders[cname] = Array.isArray(history) ? history : [];
+  saveFolders(folders);
+  alert('Saved to folder: '+cname);
+}
+</script>
+
+<script>
+const folderBtn = document.getElementById('folderBtn');
+if(folderBtn){
+  folderBtn.onclick = ()=>{
+    openFolderModal();
+  };
+}
+const saveFolderBtn = document.getElementById('saveFolderBtn');
+if(saveFolderBtn){
+  saveFolderBtn.onclick = ()=>{
+    saveToFolder();
+  };
+}
+</script>
 </body>
 </html>
