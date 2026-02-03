@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Levi Interior</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary:#2563eb;
+  --accent:#06b6d4;
+  --surface:#ffffff;
+  --separator:#e2e8f0;
+  --text-primary:#0f172a;
+  --muted:#64748b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'SF Pro Display',sans-serif;
+  background:linear-gradient(180deg,#e0e7ff 0%,#fff 100%);
+  color:var(--text-primary);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.app-container{
+  width:100%;
+  max-width:460px;
+  background:var(--surface);
+  border-radius:32px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  border:1px solid var(--separator);
+  overflow:hidden;
+  position:relative;
+  padding:40px 20px;
+  text-align:center;
+}
+
+/* LOGO */
+.logo{
+  width:120px;
+  height:120px;
+  border-radius:28px;
+  object-fit:cover;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  padding:4px;
+  margin-top:20px;
+}
+
+h1{
+  font-size:32px;
+  margin-top:20px;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-style:italic;
+  margin-bottom:40px;
+}
+
+.button-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.btn{
+  border:1px solid var(--separator);
+  background:linear-gradient(145deg,#f9f9ff,#edf2ff);
+  border-radius:20px;
+  padding:24px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.08);
+}
+
+footer{
+  margin-top:40px;
+  color:var(--muted);
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <img src="https://i.imgur.com/284Ol04.jpeg" class="logo" alt="Levi Logo">
+    <h1>LEVI STAFF </h1>
+    <div class="subtitle">by Levi Interior</div>
+
+    <div class="button-grid">
+      <button class="btn" onclick="window.location.href='attendance.html'"> 📋 Attendance</button>
+      <button class="btn" onclick="window.location.href='info.html'">ℹ️ Info</button>
+      <button class="btn" onclick=>coming soon</button>
+      <button class="btn" onclick=>coming soon</button>
+    </div>
+
+    <footer>© 2025 Levi Interior • Premium Edition</footer>
+
+  </div>
+</body>
+</html>
