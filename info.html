@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:'SF Pro Display',sans-serif;
+  background:linear-gradient(180deg,#e0e7ff 0%,#fff 100%);
+}
+
+.container{display:flex;height:100vh}
+
+/* LEFT MENU */
+.sidebar{
+  width:30%;
+  background:#f1f5f9;
+  padding:15px;
+}
+.sidebar div{
+  padding:12px;
+  margin:6px 0;
+  background:#e5e7eb;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+}
+.sidebar div.active{
+  background:#6366f1;
+  color:#fff;
+}
+
+/* RIGHT */
+.main{
+  width:70%;
+  padding:15px;
+  overflow-y:auto;
+}
+.section{display:none}
+
+.card{
+  background:#fff;
+  padding:12px 14px;
+  border-radius:16px;
+  margin:10px 0;
+  box-shadow:0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* INPUTS */
+.input-box{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #c7d2fe;
+  outline:none;
+  font-size:14px;
+}
+.small-input{width:60%}
+.btn{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  background:#6366f1;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* FILTER */
+.filter-menu{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.filter-menu button{
+  background:#e0e7ff;
+  border:none;
+  padding:6px 10px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+.filter-menu button.active{
+  background:#6366f1;
+  color:#fff;
+}
+
+/* REQUEST TABS */
+.req-tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+.req-tabs button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  background:#e0e7ff;
+  font-weight:600;
+  cursor:pointer;
+}
+.req-tabs button.active{
+  background:#6366f1;
+  color:#fff;
+}
+
+/* REQUEST CARD */
+.req-top{
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+.req-reason{margin-top:6px;font-size:14px}
+.req-status{text-align:right;margin-top:6px;font-weight:bold}
+
+/* ATTENDANCE */
+.att-row{
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr;
+}
+.att-in{color:green;font-weight:bold}
+.att-out{color:red;font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="sidebar">
+    <div onclick="show('att',this)">📋 Attendance</div>
+    <div onclick="show('req',this)">📨 Requests</div>
+    <div onclick="show('adv',this)">💰 Advance</div>
+    <div onclick="show('salary',this)">💵 Salary</div>
+  </div>
+
+  <div class="main">
+
+<!-- ATTENDANCE -->
+<div id="att" class="section">
+<h2>Attendance</h2>
+<div class="filter-menu">
+<button onclick="filterAtt('today',this)">Today</button>
+<button onclick="filterAtt('yesterday',this)">Yesterday</button>
+<button onclick="filterAtt('thisweek',this)">This Week</button>
+<button onclick="filterAtt('lastweek',this)">Last Week</button>
+<button onclick="filterAtt('thismonth',this)">This Month</button>
+<button onclick="filterAtt('lastmonth',this)">Last Month</button>
+</div>
+<div id="attList"></div>
+</div>
+
+<!-- REQUESTS -->
+<div id="req" class="section">
+<div class="req-tabs">
+<button id="payTab" onclick="showReq('pay')">Payment Request</button>
+<button id="leaveTab" onclick="showReq('leave')">Leave Request</button>
+</div>
+
+<!-- PAYMENT -->
+<div id="paySection">
+<div class="card">
+<input type="number" id="payAmount" class="input-box small-input" placeholder="Enter Amount"><br><br>
+<input type="text" id="payReason" class="input-box" placeholder="Reason"><br><br>
+<button class="btn" onclick="submitPayment()">Submit Payment</button>
+</div>
+<div id="payList"></div>
+</div>
+
+<!-- LEAVE -->
+<div id="leaveSection" style="display:none">
+<div class="card">
+<input type="date" id="leaveFrom" class="input-box"><br><br>
+<input type="date" id="leaveTo" class="input-box"><br><br>
+<input type="text" id="leaveReason" class="input-box" placeholder="Reason"><br><br>
+<button class="btn" onclick="submitLeave()">Submit Leave</button>
+</div>
+<div id="leaveList"></div>
+</div>
+</div>
+
+<!-- ADVANCE -->
+<div id="adv" class="section">
+<h2>Advance</h2>
+<div id="advList"></div>
+</div>
+
+<!-- SALARY -->
+<div id="salary" class="section">
+<h2>Salary</h2>
+<div class="card" id="salaryBox"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+let attendanceData = JSON.parse(localStorage.getItem("attendanceData"))||[];
+let paymentReq = JSON.parse(localStorage.getItem("paymentReq"))||[];
+let leaveReq = JSON.parse(localStorage.getItem("leaveReq"))||[];
+let paymentData = JSON.parse(localStorage.getItem("paymentData"))||{};
+let monthlySalary = 15000;
+
+/* SHOW */
+function show(id,el){
+document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+document.querySelectorAll('.sidebar div').forEach(d=>d.classList.remove('active'));
+el.classList.add('active');
+document.getElementById(id).style.display='block';
+
+if(id==="att") filterAtt('today',document.querySelector('#att .filter-menu button'));
+if(id==="req") showReq('pay');
+if(id==="adv") renderAdvance();
+if(id==="salary") renderSalary();
+}
+
+/* REQUEST TABS */
+function showReq(type){
+payTab.classList.remove("active");
+leaveTab.classList.remove("active");
+paySection.style.display="none";
+leaveSection.style.display="none";
+
+if(type==="pay"){
+payTab.classList.add("active");
+paySection.style.display="block";
+renderPayment();
+}
+if(type==="leave"){
+leaveTab.classList.add("active");
+leaveSection.style.display="block";
+renderLeave();
+}
+}
+
+/* ATTENDANCE */
+function filterAtt(type,btn){
+document.querySelectorAll("#att .filter-menu button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+
+let now=new Date(), html="";
+let sorted=[...attendanceData].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+sorted.forEach(a=>{
+let d=new Date(a.date);
+let diff=(now-d)/(1000*60*60*24);
+let show=false;
+
+if(type==="today") show=d.toDateString()===now.toDateString();
+if(type==="yesterday"){let y=new Date();y.setDate(now.getDate()-1);show=d.toDateString()===y.toDateString();}
+if(type==="thisweek") show=diff<=7 && diff>=0;
+if(type==="lastweek") show=diff>7 && diff<=14;
+if(type==="thismonth") show=d.getMonth()===now.getMonth();
+if(type==="lastmonth"){let lm=new Date(now.getFullYear(),now.getMonth()-1,1);show=d.getMonth()===lm.getMonth();}
+
+if(show){
+html+=`
+<div class="card">
+<div class="att-row">
+<div>${a.date}</div>
+<div class="att-in">In: ${a.checkIn||"-"}</div>
+<div class="att-out">${a.checkOut?"Out: "+a.checkOut:""}</div>
+</div>
+</div>`;
+}
+});
+attList.innerHTML=html||"No records";
+}
+
+/* PAYMENT */
+function submitPayment(){
+if(!payAmount.value) return alert("Amount डालो");
+paymentReq.push({amount:payAmount.value,reason:payReason.value,date:new Date().toLocaleDateString(),status:"Pending"});
+localStorage.setItem("paymentReq",JSON.stringify(paymentReq));
+renderPayment();
+}
+function renderPayment(){
+let html="";
+paymentReq.forEach(p=>{
+let color=p.status=="Pending"?"orange":p.status=="Approved"?"green":"red";
+html+=`
+<div class="card">
+<div class="req-top"><div>${p.date}</div><div>₹${p.amount}</div></div>
+<div class="req-reason">${p.reason||"-"}</div>
+<div class="req-status" style="color:${color}">${p.status}</div>
+</div>`;
+});
+payList.innerHTML=html||"No data";
+}
+
+/* LEAVE */
+function submitLeave(){
+if(!leaveFrom.value || !leaveTo.value) return alert("Date चुनो");
+leaveReq.push({from:leaveFrom.value,to:leaveTo.value,reason:leaveReason.value,status:"Pending"});
+localStorage.setItem("leaveReq",JSON.stringify(leaveReq));
+renderLeave();
+}
+function renderLeave(){
+let html="";
+leaveReq.forEach(l=>{
+let color=l.status=="Pending"?"orange":l.status=="Approved"?"green":"red";
+html+=`
+<div class="card">
+<div class="req-top"><div>${l.from} → ${l.to}</div><div>Leave</div></div>
+<div class="req-reason">${l.reason||"-"}</div>
+<div class="req-status" style="color:${color}">${l.status}</div>
+</div>`;
+});
+leaveList.innerHTML=html||"No data";
+}
+
+/* ADVANCE */
+function renderAdvance(){
+let html="";
+for(let m in paymentData){
+html+=`<div class="card">${m} : ₹${paymentData[m].advance||0}</div>`;
+}
+advList.innerHTML=html||"No data";
+}
+
+/* SALARY */
+function renderSalary(){
+let total=0;
+for(let m in paymentData){total+=paymentData[m].advance||0;}
+salaryBox.innerHTML=`Salary: ₹${monthlySalary}<br>Advance: ₹${total}<hr><b>Payable: ₹${monthlySalary-total}</b>`;
+}
+
+show('att',document.querySelector('.sidebar div'));
+</script>
+
+</body>
+</html>
