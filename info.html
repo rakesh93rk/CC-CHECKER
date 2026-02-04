@@ -130,6 +130,101 @@ body{
 }
 .att-in{color:green;font-weight:bold}
 .att-out{color:red;font-weight:bold}
+
+/* ===== APP STYLE MOBILE UI ===== */
+@media(max-width:768px){
+
+  body{
+    background:#f1f5f9;
+    font-size:15px;
+  }
+
+  .container{
+    flex-direction:column;
+    height:auto;
+  }
+
+  .sidebar{
+    width:100%;
+    display:flex;
+    justify-content:space-around;
+    gap:6px;
+    padding:10px 6px;
+    background:#ffffff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+
+  .sidebar div{
+    flex:1;
+    text-align:center;
+    font-size:12px;
+    padding:10px 4px;
+    border-radius:12px;
+    white-space:nowrap;
+    background:#eef2ff;
+  }
+
+  .sidebar div.active{
+    background:#6366f1;
+    color:#fff;
+  }
+
+  .main{
+    width:100%;
+    padding:10px;
+  }
+
+  h2{
+    font-size:18px;
+    margin:8px 0;
+  }
+
+  .card{
+    border-radius:18px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  }
+
+  .input-box{
+    font-size:15px;
+    padding:14px;
+    border-radius:14px;
+  }
+
+  .btn{
+    font-size:16px;
+    padding:14px;
+    border-radius:16px;
+  }
+
+  .small-input{
+    width:100%;
+  }
+
+  .att-row{
+    grid-template-columns:1fr;
+    gap:6px;
+    font-size:14px;
+  }
+
+  .filter-menu button{
+    padding:8px 12px;
+    font-size:13px;
+    border-radius:14px;
+  }
+
+  .req-tabs button{
+    padding:12px;
+    font-size:14px;
+    border-radius:14px;
+  }
+
+  .req-status{
+    font-size:14px;
+  }
+}
 </style>
 </head>
 
@@ -166,7 +261,6 @@ body{
 <button id="leaveTab" onclick="showReq('leave')">Leave Request</button>
 </div>
 
-<!-- PAYMENT -->
 <div id="paySection">
 <div class="card">
 <input type="number" id="payAmount" class="input-box small-input" placeholder="Enter Amount"><br><br>
@@ -176,7 +270,6 @@ body{
 <div id="payList"></div>
 </div>
 
-<!-- LEAVE -->
 <div id="leaveSection" style="display:none">
 <div class="card">
 <input type="date" id="leaveFrom" class="input-box"><br><br>
@@ -188,13 +281,11 @@ body{
 </div>
 </div>
 
-<!-- ADVANCE -->
 <div id="adv" class="section">
 <h2>Advance</h2>
 <div id="advList"></div>
 </div>
 
-<!-- SALARY -->
 <div id="salary" class="section">
 <h2>Salary</h2>
 <div class="card" id="salaryBox"></div>
@@ -242,25 +333,49 @@ renderLeave();
 }
 }
 
-/* ATTENDANCE */
-function filterAtt(type,btn){
+/* ATTENDANCE FILTER */
+function filterAtt(type, btn){
 document.querySelectorAll("#att .filter-menu button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 
-let now=new Date(), html="";
-let sorted=[...attendanceData].sort((a,b)=>new Date(b.date)-new Date(a.date));
+let now = new Date();
+let html = "";
+
+let sorted = [...attendanceData].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
 sorted.forEach(a=>{
-let d=new Date(a.date);
-let diff=(now-d)/(1000*60*60*24);
-let show=false;
+let d = new Date(a.date);
+let show = false;
 
-if(type==="today") show=d.toDateString()===now.toDateString();
-if(type==="yesterday"){let y=new Date();y.setDate(now.getDate()-1);show=d.toDateString()===y.toDateString();}
-if(type==="thisweek") show=diff<=7 && diff>=0;
-if(type==="lastweek") show=diff>7 && diff<=14;
-if(type==="thismonth") show=d.getMonth()===now.getMonth();
-if(type==="lastmonth"){let lm=new Date(now.getFullYear(),now.getMonth()-1,1);show=d.getMonth()===lm.getMonth();}
+if(type==="today"){
+show = d.toDateString() === now.toDateString();
+}
+if(type==="yesterday"){
+let y = new Date(now);
+y.setDate(now.getDate()-1);
+show = d.toDateString() === y.toDateString();
+}
+if(type==="thisweek"){
+let first = new Date(now);
+first.setDate(now.getDate() - now.getDay());
+let last = new Date(first);
+last.setDate(first.getDate() + 6);
+show = d >= first && d <= last;
+}
+if(type==="lastweek"){
+let first = new Date(now);
+first.setDate(now.getDate() - now.getDay() - 7);
+let last = new Date(first);
+last.setDate(first.getDate() + 6);
+show = d >= first && d <= last;
+}
+if(type==="thismonth"){
+show = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+if(type==="lastmonth"){
+let lm = new Date(now.getFullYear(), now.getMonth()-1, 1);
+show = d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
+}
 
 if(show){
 html+=`
@@ -273,7 +388,8 @@ html+=`
 </div>`;
 }
 });
-attList.innerHTML=html||"No records";
+
+attList.innerHTML = html || "No records";
 }
 
 /* PAYMENT */
