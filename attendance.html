@@ -117,7 +117,6 @@ h1{margin:15px 0;}
 </div>
 
 <div class="card">
-
 <div class="photo-row">
   <div>
     <b>Check-In</b><br>
@@ -138,12 +137,10 @@ h1{margin:15px 0;}
 </div>
 
 <script>
-let checkInTime=null;
-let checkOutTime=null;
-let checkInCoords=null;
-let workPhotosUploaded=false;
-let zoneTimer=null;
+let attendanceData = JSON.parse(localStorage.getItem("attendanceData")) || [];
 let isCheckedIn=false;
+let workPhotosUploaded=false;
+let checkInCoords=null;
 
 /* TOAST */
 function showToast(msg){
@@ -156,7 +153,7 @@ function showToast(msg){
 /* CHECK IN */
 function checkIn(){
   if(isCheckedIn){
-    showToast("⚠️ You are already checked in");
+    showToast("Already checked in");
     return;
   }
   takeSelfie("checkin", ()=>getLocation(true));
@@ -177,7 +174,7 @@ function takeSelfie(type, callback){
         : document.getElementById("checkoutPhotoPreview");
       img.src=reader.result;
       img.style.display="block";
-      if(callback) callback();
+      callback();
     };
     reader.readAsDataURL(e.target.files[0]);
   };
@@ -187,10 +184,9 @@ function takeSelfie(type, callback){
 /* WORK PHOTOS */
 function uploadWorkPhotos(){
   if(!checkInCoords){
-    showToast("⚠️ Please check in first");
+    showToast("Please check in first");
     return;
   }
-
   const input=document.createElement("input");
   input.type="file";
   input.accept="image/*";
@@ -211,9 +207,8 @@ function uploadWorkPhotos(){
 
     workPhotosUploaded=true;
     document.getElementById("finalCheckoutBtn").style.display="block";
-    showToast("📸 Work photos uploaded");
+    showToast("Work photos uploaded");
   };
-
   input.click();
 }
 
@@ -229,11 +224,11 @@ function shortAddress(addr){
 /* CHECKOUT */
 function finalCheckout(){
   if(!isCheckedIn){
-    showToast("⚠️ Please check in first");
+    showToast("Check in first");
     return;
   }
   if(!workPhotosUploaded){
-    showToast("⚠️ Upload work photos first");
+    showToast("Upload work photos first");
     return;
   }
   takeSelfie("checkout", ()=>getLocation(false));
@@ -245,6 +240,8 @@ function getLocation(isCheckIn){
     const lat=pos.coords.latitude;
     const lng=pos.coords.longitude;
     const now=new Date();
+    const dateISO = now.toISOString().split("T")[0];
+    const time = now.toLocaleTimeString();
 
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,{
       headers:{'User-Agent':'Levi-Attendance-App'}
@@ -254,66 +251,44 @@ function getLocation(isCheckIn){
       const addr = shortAddress(d.address);
 
       if(isCheckIn){
-        checkInTime=now;
         checkInCoords={lat,lng};
         isCheckedIn=true;
 
-        document.getElementById("checkinInfo").innerHTML=
+        document.getElementById("checkinInfo").innerHTML =
           "🟢 Check-in<br>"+
-          "🕒 "+checkInTime.toLocaleString()+"<br>"+
+          "🕒 "+now.toLocaleString()+"<br>"+
           "📍 "+addr;
 
-        showToast("✅ Check-in successful");
+        attendanceData.push({
+          date:dateISO,
+          checkIn:time,
+          checkOut:"",
+          location:addr
+        });
+        localStorage.setItem("attendanceData",JSON.stringify(attendanceData));
 
-        if(zoneTimer) clearInterval(zoneTimer);
-        zoneTimer=setInterval(checkWorkingZone,60000);
+        showToast("Check-in saved");
 
       }else{
-        checkOutTime=now;
-
-        document.getElementById("checkoutInfo").innerHTML=
+        document.getElementById("checkoutInfo").innerHTML =
           "🔴 Check-out<br>"+
-          "🕒 "+checkOutTime.toLocaleString()+"<br>"+
+          "🕒 "+now.toLocaleString()+"<br>"+
           "📍 "+addr;
 
-        showToast("🔴 Checkout successful");
+        let last = attendanceData[attendanceData.length-1];
+        if(last){
+          last.checkOut = time;
+          last.checkoutLocation = addr;
+        }
+        localStorage.setItem("attendanceData",JSON.stringify(attendanceData));
+
+        showToast("Checkout saved");
       }
     });
   },
   function(){
-    showToast("❌ Please allow location permission");
+    showToast("Location permission denied");
   });
-}
-
-/* ZONE CHECK (200m notify admin only) */
-function checkWorkingZone(){
-  navigator.geolocation.getCurrentPosition(function(pos){
-    const dist=getDistance(
-      checkInCoords.lat,
-      checkInCoords.lng,
-      pos.coords.latitude,
-      pos.coords.longitude
-    );
-
-    if(dist>0.2){
-      fetch("notify-admin.php",{
-        method:"POST",
-        headers:{"Content-Type":"application/x-www-form-urlencoded"},
-        body:"message=Staff outside 200m work zone"
-      });
-    }
-  });
-}
-
-/* DISTANCE */
-function getDistance(lat1,lon1,lat2,lon2){
-  const R=6371;
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+
-    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-    Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 </script>
 
