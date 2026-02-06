@@ -174,7 +174,7 @@ btnVerifyOtp.onclick=()=>{
   confirmationResult.confirm(otp)
     .then(()=>{
       toast("Login successful");
-      setTimeout(()=>location.href="index.html",3000);
+      setTimeout(()=>location.href="main.html",3000);
     })
     .catch(()=>toast("Invalid OTP","error"));
 };
