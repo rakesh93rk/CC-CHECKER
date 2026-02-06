@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Demo Staff Add</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#f1f5f9;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+.card{
+  background:#fff;
+  padding:24px;
+  border-radius:12px;
+  width:320px;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+h2{
+  margin:0 0 14px;
+  text-align:center;
+}
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+}
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+.list{
+  margin-top:15px;
+  font-size:14px;
+}
+.user{
+  padding:6px;
+  border-bottom:1px dashed #ddd;
+}
+.clear{
+  background:#dc2626;
+  margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Demo Staff Add</h2>
+
+  <input id="name" placeholder="Enter Name">
+  <input id="mobile" placeholder="Enter Mobile Number">
+
+  <button onclick="addUser()">Save to LocalStorage</button>
+  <button class="clear" onclick="clearAll()">Clear All</button>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+function getUsers(){
+  return JSON.parse(localStorage.getItem("usersData")) || [];
+}
+
+function addUser(){
+  const name = document.getElementById("name").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+
+  if(!name || !/^[6-9]\d{9}$/.test(mobile)){
+    alert("Enter valid name & mobile");
+    return;
+  }
+
+  const users = getUsers();
+
+  if(users.some(u=>u.mobile===mobile)){
+    alert("Mobile already exists");
+    return;
+  }
+
+  users.push({name, mobile});
+  localStorage.setItem("usersData", JSON.stringify(users));
+
+  document.getElementById("name").value="";
+  document.getElementById("mobile").value="";
+
+  render();
+}
+
+function render(){
+  const users = getUsers();
+  const list = document.getElementById("list");
+  list.innerHTML = "<b>Saved Users:</b>";
+
+  users.forEach(u=>{
+    list.innerHTML += `<div class="user">👤 ${u.name} — 📱 ${u.mobile}</div>`;
+  });
+}
+
+function clearAll(){
+  if(confirm("Clear all users?")){
+    localStorage.removeItem("usersData");
+    render();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
