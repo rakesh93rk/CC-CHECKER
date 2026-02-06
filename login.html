@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Levi Interior — Staff Login</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#eef2ff;
+  font-family:Inter,Arial;
+}
+.card{
+  background:#fff;
+  width:360px;
+  padding:28px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.12);
+  text-align:center;
+}
+.logo{
+  width:80px;
+  margin:auto;
+}
+h1{margin:10px 0 4px}
+.tag{color:#64748b;margin-bottom:16px}
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:10px;
+  font-size:15px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#2563eb,#06b6d4);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+#otpArea{display:none;margin-top:10px}
+footer{margin-top:12px;color:#64748b;font-size:13px}
+
+/* Toast */
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  padding:14px 18px;
+  border-radius:12px;
+  color:#fff;
+  font-size:14px;
+  opacity:0;
+  transform:translateY(-20px);
+  animation:show .4s forwards,hide .4s forwards 2.6s;
+  z-index:9999;
+}
+.toast.success{background:#16a34a}
+.toast.error{background:#dc2626}
+@keyframes show{to{opacity:1;transform:translateY(0)}}
+@keyframes hide{to{opacity:0;transform:translateY(-20px)}}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <img src="https://i.imgur.com/284Ol04.jpeg" class="logo">
+  <h1>Levi Interior</h1>
+  <div class="tag">Staff Portal — Login</div>
+
+  <input id="mobile" placeholder="Enter Mobile Number">
+  <button id="btnSendOtp">Send OTP</button>
+
+  <div id="otpArea">
+    <input id="otpInput" placeholder="Enter OTP">
+    <button id="btnVerifyOtp">Verify OTP</button>
+  </div>
+
+  <footer>© 2026 Levi Interior</footer>
+</div>
+
+<!-- Firebase CDN (NO MODULE / NO NPM) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+<script>
+/* ---------- Toast ---------- */
+function toast(msg,type="success"){
+  const t=document.createElement("div");
+  t.className="toast "+type;
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+/* ---------- DEMO STAFF DATA ---------- */
+/*
+Run once in console if empty:
+localStorage.setItem(
+ "usersData",
+ JSON.stringify([{name:"Admin",mobile:"9398039725"}])
+);
+*/
+const users = JSON.parse(localStorage.getItem("usersData")) || [];
+
+/* ---------- Firebase Init ---------- */
+firebase.initializeApp({
+  apiKey: "AIzaSyBWeGPZxRo_86VJf0s6hBHITfyBu07hphk",
+  authDomain: "levi-interior-otp.firebaseapp.com",
+  projectId: "levi-interior-otp",
+  storageBucket: "levi-interior-otp.firebasestorage.app",
+  messagingSenderId: "341247799538",
+  appId: "1:341247799538:web:f8b1ac4146429a4dca606b"
+});
+const auth = firebase.auth();
+
+/* ---------- Elements ---------- */
+const btnSendOtp=document.getElementById("btnSendOtp");
+const btnVerifyOtp=document.getElementById("btnVerifyOtp");
+const otpArea=document.getElementById("otpArea");
+
+/* ---------- reCAPTCHA (ONCE) ---------- */
+let recaptchaReady=false;
+function initRecaptcha(){
+  if(recaptchaReady) return;
+  window.recaptchaVerifier=new firebase.auth.RecaptchaVerifier(
+    btnSendOtp,{size:"invisible"}
+  );
+  recaptchaReady=true;
+}
+
+/* ---------- Send OTP ---------- */
+btnSendOtp.onclick=()=>{
+  const mobile=document.getElementById("mobile").value.trim();
+
+  if(!/^[6-9]\d{9}$/.test(mobile)){
+    toast("Invalid mobile number","error");return;
+  }
+  if(!users.find(u=>u.mobile===mobile)){
+    toast("You are not authorized","error");return;
+  }
+
+  initRecaptcha();
+
+  auth.signInWithPhoneNumber("+91"+mobile,window.recaptchaVerifier)
+    .then(res=>{
+      window.confirmationResult=res;
+      otpArea.style.display="block";
+      toast("OTP sent successfully");
+    })
+    .catch(err=>{
+      console.log(err.code,err.message);
+      toast("OTP send failed","error");
+    });
+};
+
+/* ---------- Verify OTP ---------- */
+btnVerifyOtp.onclick=()=>{
+  const otp=document.getElementById("otpInput").value.trim();
+  if(!otp){toast("Enter OTP","error");return;}
+
+  confirmationResult.confirm(otp)
+    .then(()=>{
+      toast("Login successful");
+      setTimeout(()=>location.href="index.html",3000);
+    })
+    .catch(()=>toast("Invalid OTP","error"));
+};
+</script>
+
+</body>
+</html>
